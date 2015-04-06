@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.4.0.xsd">
+
+	<!-- JDBC data source which uses oracle -->
+	<bean id="pos_ds" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url"
+			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
+		<property name="username" value="NEANDS3" />
+		<property name="password" value="edi_123" />
+		<!--maxActive: 最大连接数量 -->
+		<property name="maxActive" value="100" />
+		<!--minIdle: 最小空闲连接 -->
+		<property name="minIdle" value="5" />
+		<!--maxIdle: 最大空闲连接 -->
+		<property name="maxIdle" value="10" />
+		<!--initialSize: 初始化连接 -->
+		<property name="initialSize" value="5" />
+		<!-- 连接被泄露时是否打印 -->
+		<property name="logAbandoned" value="true" />
+		<!--removeAbandoned: 是否自动回收超时连接 -->
+		<property name="removeAbandoned" value="true" />
+		<!--removeAbandonedTimeout: 超时时间(以秒数为单位),超时后直接清理掉 -->
+		<property name="removeAbandonedTimeout" value="180" />
+		<!--maxWait: 最大建立连接等待时间以毫秒为单位 -->
+		<property name="maxWait" value="10000" />
+		<property name="testWhileIdle" value="true" />
+		<!-- 线程回收器每隔3600000ms(1h)检查连接池中的空闲连接 -->
+		<property name="timeBetweenEvictionRunsMillis" value="3600000" />
+		<!-- 接上，空闲的连接在18000000ms(5h)时间内可以不被回收，超过就被移除 -->
+		<property name="minEvictableIdleTimeMillis" value="18000000" />
+		<!--从数据库连接池中取得连接时，对其的有效性进行检查 -->
+		<property name="testOnBorrow" value="true" />
+
+	</bean>
+	<bean id="edi_ds" class="org.apache.tomcat.jdbc.pool.DataSource"
+		destroy-method="close">
+		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="url"
+			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
+		<property name="username" value="edigate" />
+		<property name="password" value="edi_123" />
+		<!--maxActive: 最大连接数量 -->
+		<property name="maxActive" value="100" />
+		<!--minIdle: 最小空闲连接 -->
+		<property name="minIdle" value="5" />
+		<!--maxIdle: 最大空闲连接 -->
+		<property name="maxIdle" value="10" />
+		<!--initialSize: 初始化连接 -->
+		<property name="initialSize" value="5" />
+		<!-- 连接被泄露时是否打印 -->
+		<property name="logAbandoned" value="true" />
+		<!--removeAbandoned: 是否自动回收超时连接 -->
+		<property name="removeAbandoned" value="true" />
+		<!--removeAbandonedTimeout: 超时时间(以秒数为单位),超时后直接清理掉 -->
+		<property name="removeAbandonedTimeout" value="180" />
+		<!--maxWait: 最大建立连接等待时间以毫秒为单位 -->
+		<property name="maxWait" value="10000" />
+		<property name="testWhileIdle" value="true" />
+		<!-- 线程回收器每隔3600000ms(1h)检查连接池中的空闲连接 -->
+		<property name="timeBetweenEvictionRunsMillis" value="3600000" />
+		<!-- 接上，空闲的连接在18000000ms(5h)时间内可以不被回收，超过就被移除 -->
+		<property name="minEvictableIdleTimeMillis" value="18000000" />
+		<!--从数据库连接池中取得连接时，对其的有效性进行检查 -->
+		<property name="testOnBorrow" value="true" />
+
+	</bean>
+	<!-- /JDBC data source which uses oracle -->
+
+	<bean id="smooks" class="org.milyn.smooks.camel.dataformat.SmooksDataFormat" init-method="start">
+	  	<constructor-arg><value>smooks-pricat.xml</value></constructor-arg>
+	</bean>
+	
+	<bean id="debugProc" class="com.itwheel.edigate.processor.DebugProc" />
+	
+	<camelContext id="edigate_pricat" xmlns="http://camel.apache.org/schema/spring">
+		
+		<camel:route id="pricat">
+			<camel:from uri="file://F:\edioutput\pricat\"></camel:from>
+			<camel:log message="${body}"></camel:log>	
+		</camel:route>
+	</camelContext>
+</beans>
