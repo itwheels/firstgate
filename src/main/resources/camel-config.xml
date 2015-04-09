@@ -74,10 +74,6 @@
 	</bean>
 	<!-- /JDBC data source which uses oracle -->
 
-	<bean id="smooks" class="org.milyn.smooks.camel.dataformat.SmooksDataFormat" init-method="start">
-	  	<constructor-arg><value>smooks-slsrpt.xml</value></constructor-arg>
-	</bean>
-	
 	<bean id="debugProc" class="com.itwheel.edigate.processor.DebugProc" />
 	<bean id="prepSqlParamInitBatchProc" class="com.itwheel.edigate.processor.PrepSqlParamInitBatchProc" />
 	<bean id="prepSqlParamRetailProc" class="com.itwheel.edigate.processor.PrepSqlParamRetailProc" />
@@ -86,6 +82,8 @@
 	<bean id="initSlsrptMsgListProc" class="com.itwheel.edigate.processor.InitSlsrptMsgListProc" />
 	<bean id="produceSlsrptMsgProc" class="com.itwheel.edigate.processor.ProduceSlsrptMsgProc" />
 	<bean id="assemblySlsrptProc" class="com.itwheel.edigate.processor.AssemblySlsrptProc" />
+	<bean id="parsePricatProc" class="com.itwheel.edigate.processor.ParsePricatProc" />
+	
 	
 	<camelContext id="edigate" xmlns="http://camel.apache.org/schema/spring">
 		<!-- use Camel property placeholder loaded from the given file -->
@@ -93,8 +91,8 @@
 			location="classpath:sql.properties" />
 
 		<camel:route id="slsrpt">
-			<camel:from uri="quartz://slsrptTimer?cron=0/20+*+*+*+*+?" />
-			<camel:log message="quartz trigger a event"></camel:log>
+			<camel:from uri="quartz://slsrptTimer?cron=*+*+0+*+*+?" />
+			<camel:log message="slsrpt quartz trigger a event"></camel:log>
 
 			<camel:to uri="sql:{{sql.lastbatch}}?dataSourceRef=edi_ds" />
 			<camel:setHeader headerName="last_start_dte">
@@ -141,7 +139,7 @@
 					<camel:bean ref="assemblySlsrptProc"></camel:bean>
 					
 					<camel:to uri="file:F:\edioutput\slsrpt\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to>
-<!-- 					<camel:to uri="sftp://luzhifeng@111.13.52.216?password=Y3-rze4j&amp;autoCreate=true&amp;tempPrefix=temp&amp;fileName=edi/slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to> -->
+<!-- 					<camel:to uri="sftp://?password=&amp;autoCreate=true&amp;tempPrefix=temp&amp;fileName=edi/slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to> -->
 					<camel:log message="slsrpt edi text: ${body}"></camel:log>
 					
 				</camel:when>
@@ -153,6 +151,16 @@
 			<camel:bean ref="prepSqlParamCloseBatchProc"></camel:bean>
 			<camel:to uri="sql:{{sql.close_batch}}?dataSourceRef=edi_ds"></camel:to>
 			
+		</camel:route>
+		
+		<camel:route id="pricat">
+<!-- 			<camel:from uri="sftp:///edi?password="></camel:from>  -->
+			<camel:from uri="file://F:\edioutput\pricat"></camel:from>
+			<camel:log message="pricat quartz trigger a event"></camel:log>
+			<camel:log message="${body}"></camel:log>
+			
+			<camel:bean ref="parsePricatProc"></camel:bean>	
+			<camel:bean ref="debugProc"></camel:bean>	
 		</camel:route>
 	</camelContext>
 	
