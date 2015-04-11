@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup1;
+import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup2;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup13;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup5;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup11;
@@ -102,40 +103,40 @@ public class InvrptEdiObjectFactory {
 		endDteObj.setC507DateTimePeriod(c507DateTimePeriod);
 		return endDteObj;
 	}
-	public static SegmentGroup1 createSgNadCo() {
-		SegmentGroup1 sg1NadCo = new SegmentGroup1();
+	public static SegmentGroup2 createSgNadCo() {
+		SegmentGroup2 sg2NadCo = new SegmentGroup2();
 		NADNameAndAddress nadCo = new NADNameAndAddress();
 		nadCo.setE3035PartyQualifier("CO");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification("8800");
 		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
 		nadCo.setC082PartyIdentificationDetails(partyDetail);
-		//sg1NadCo.setNADNameAndAddress(nadCo);
+		sg2NadCo.setNADNameAndAddress(nadCo);
 		
-		return sg1NadCo;
+		return sg2NadCo;
 	}
-	public static SegmentGroup1 createSgNadSu() {
-		SegmentGroup1 sg1NadSu = new SegmentGroup1();
+	public static SegmentGroup2 createSgNadSu() {
+		SegmentGroup2 sg1NadSu = new SegmentGroup2();
 		NADNameAndAddress nadSu = new NADNameAndAddress();
 		nadSu.setE3035PartyQualifier("SU");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification("0909");
 		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
 		nadSu.setC082PartyIdentificationDetails(partyDetail);
-		//sg1NadSu.setNADNameAndAddress(nadSu);
+		sg1NadSu.setNADNameAndAddress(nadSu);
 		return sg1NadSu;
 	}
-	public static SegmentGroup1 createSgNadGy(String snCod) {
-		SegmentGroup1 sg1NadSn = new SegmentGroup1();
+	public static SegmentGroup2 createSgNadGy(String snCod) {
+		SegmentGroup2 sg2NadSn = new SegmentGroup2();
 		NADNameAndAddress nadSn = new NADNameAndAddress();
 		nadSn.setE3035PartyQualifier("GY");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification(snCod);
 		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
 		nadSn.setC082PartyIdentificationDetails(partyDetail);
-		//sg1NadSn.setNADNameAndAddress(nadSn);
+		sg2NadSn.setNADNameAndAddress(nadSn);
 		
-		return sg1NadSn;
+		return sg2NadSn;
 	}
 	public static SegmentGroup5 createSgCurCny() {
 		SegmentGroup5 sg4CurCny = new SegmentGroup5();
@@ -200,7 +201,7 @@ public class InvrptEdiObjectFactory {
 		
 		return pnd;
 	}
-	public static List<SegmentGroup11> createQty(BigDecimal qty) {
+	public static List<SegmentGroup11> createQty(BigDecimal qty, LOCPlaceLocationIdentification loc) {
 		C186QuantityDetails qtyDetail = new C186QuantityDetails();
 		qtyDetail.setE6063QuantityQualifier("145");
 		qtyDetail.setE6060Quantity(qty);
@@ -210,6 +211,7 @@ public class InvrptEdiObjectFactory {
 		
 		SegmentGroup11 sg11 = new SegmentGroup11();
 		sg11.setQTYQuantity(qtyObj);
+		sg11.setLOCPlaceLocationIdentification(InvrptEdiObjectFactory.getLocList(loc));
 		
 		List<SegmentGroup11> sg11List = new ArrayList<SegmentGroup11>();
 		sg11List.add(sg11);

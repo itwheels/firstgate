@@ -9,7 +9,7 @@ import java.util.Map;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.milyn.edi.unedifact.d96a.INVRPT.Invrpt;
-import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup1;
+import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup2;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup4;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup5;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup9;
@@ -68,16 +68,16 @@ public class ProduceInvrptMsgProc implements Processor {
 		dTMDateTimePeriod.add(rptEndDte);
 		message.setDTMDateTimePeriod(dTMDateTimePeriod);
 		
-		// SG1
-		List<SegmentGroup1> segmentGroup1 = new ArrayList<SegmentGroup1>();
-		SegmentGroup1 sgNadSu = InvrptEdiObjectFactory.createSgNadSu();
-		SegmentGroup1 sgNadGy = InvrptEdiObjectFactory.createSgNadGy(storeCod);
-		SegmentGroup1 sgNadCo = InvrptEdiObjectFactory.createSgNadCo();
+		// SG2
+		List<SegmentGroup2> segmentGroup2 = new ArrayList<SegmentGroup2>();
+		SegmentGroup2 sgNadSu = InvrptEdiObjectFactory.createSgNadSu();
+		SegmentGroup2 sgNadGy = InvrptEdiObjectFactory.createSgNadGy(storeCod);
+		SegmentGroup2 sgNadCo = InvrptEdiObjectFactory.createSgNadCo();
 		
-		segmentGroup1.add(sgNadSu);
-		segmentGroup1.add(sgNadGy);
-		segmentGroup1.add(sgNadCo);
-		message.setSegmentGroup1(segmentGroup1);
+		segmentGroup2.add(sgNadSu);
+		segmentGroup2.add(sgNadGy);
+		segmentGroup2.add(sgNadCo);
+		message.setSegmentGroup2(segmentGroup2);
 		
 		// SG5
 		List<SegmentGroup5> segmentGroup5 = new ArrayList<SegmentGroup5>();
@@ -105,13 +105,10 @@ public class ProduceInvrptMsgProc implements Processor {
 			
 			PRIPriceDetails pRIPriceDetails = InvrptEdiObjectFactory.createPrice(pricelist);
 			
-			List<SegmentGroup11> sg11List = InvrptEdiObjectFactory.createQty(qty);
+			List<SegmentGroup11> sg11List = InvrptEdiObjectFactory.createQty(qty, loc);
 			
 			for(SegmentGroup11 sg : sg11List) {
-				SegmentGroup11 sg11 = new SegmentGroup11();
-				sg11.setLOCPlaceLocationIdentification(InvrptEdiObjectFactory.getLocList(loc));
-				sg11.setSegmentGroup13(InvrptEdiObjectFactory.createSG13PriceList(pRIPriceDetails));
-				
+				sg.setSegmentGroup13(InvrptEdiObjectFactory.createSG13PriceList(pRIPriceDetails));
 			}
 			
 			SegmentGroup9 sg9 = new SegmentGroup9();
