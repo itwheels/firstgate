@@ -12,10 +12,8 @@ public class PrepSqlParamInvrptCloseBatchProc implements Processor {
 
 	public void process(Exchange exchange) throws Exception {
 		
-		Object rowCont = 
-				exchange.getIn().getHeader("retail_cont");
-		Object batchId = 
-				exchange.getIn().getHeader("batch_id");
+		Object rowCont = exchange.getIn().getHeader("invrpt_retail_cont");
+		Object batchId = exchange.getIn().getHeader("invrpt_batch_id");
 		List params = new ArrayList();
 		params.add(rowCont);
 		params.add(batchId);
