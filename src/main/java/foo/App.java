@@ -17,7 +17,7 @@ public class App
     }
     private static CamelContext configureAndStartCamel() {
 		// TODO Auto-generated method stub
-    	ApplicationContext springContext = new ClassPathXmlApplicationContext("camel-config.xml");
+    	ApplicationContext springContext = new ClassPathXmlApplicationContext("applicationContext.xml");
     	CamelContext camelContext = (CamelContext) springContext.getBean("edigate");
 		return camelContext;
 	}

@@ -7,74 +7,8 @@
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.4.0.xsd">
 
-	<!-- JDBC data source which uses oracle -->
-	<bean id="pos_ds" class="org.apache.tomcat.jdbc.pool.DataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-		<property name="url"
-			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
-		<property name="username" value="NEANDS3" />
-		<property name="password" value="edi_123" />
-		<!--maxActive: 最大连接数量 -->
-		<property name="maxActive" value="100" />
-		<!--minIdle: 最小空闲连接 -->
-		<property name="minIdle" value="5" />
-		<!--maxIdle: 最大空闲连接 -->
-		<property name="maxIdle" value="10" />
-		<!--initialSize: 初始化连接 -->
-		<property name="initialSize" value="5" />
-		<!-- 连接被泄露时是否打印 -->
-		<property name="logAbandoned" value="true" />
-		<!--removeAbandoned: 是否自动回收超时连接 -->
-		<property name="removeAbandoned" value="true" />
-		<!--removeAbandonedTimeout: 超时时间(以秒数为单位),超时后直接清理掉 -->
-		<property name="removeAbandonedTimeout" value="180" />
-		<!--maxWait: 最大建立连接等待时间以毫秒为单位 -->
-		<property name="maxWait" value="10000" />
-		<property name="testWhileIdle" value="true" />
-		<!-- 线程回收器每隔3600000ms(1h)检查连接池中的空闲连接 -->
-		<property name="timeBetweenEvictionRunsMillis" value="3600000" />
-		<!-- 接上，空闲的连接在18000000ms(5h)时间内可以不被回收，超过就被移除 -->
-		<property name="minEvictableIdleTimeMillis" value="18000000" />
-		<!--从数据库连接池中取得连接时，对其的有效性进行检查 -->
-		<property name="testOnBorrow" value="true" />
+	
 
-	</bean>
-	<bean id="edi_ds" class="org.apache.tomcat.jdbc.pool.DataSource"
-		destroy-method="close">
-		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-		<property name="url"
-			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
-		<property name="username" value="edigate" />
-		<property name="password" value="edi_123" />
-		<!--maxActive: 最大连接数量 -->
-		<property name="maxActive" value="100" />
-		<!--minIdle: 最小空闲连接 -->
-		<property name="minIdle" value="5" />
-		<!--maxIdle: 最大空闲连接 -->
-		<property name="maxIdle" value="10" />
-		<!--initialSize: 初始化连接 -->
-		<property name="initialSize" value="5" />
-		<!-- 连接被泄露时是否打印 -->
-		<property name="logAbandoned" value="true" />
-		<!--removeAbandoned: 是否自动回收超时连接 -->
-		<property name="removeAbandoned" value="true" />
-		<!--removeAbandonedTimeout: 超时时间(以秒数为单位),超时后直接清理掉 -->
-		<property name="removeAbandonedTimeout" value="180" />
-		<!--maxWait: 最大建立连接等待时间以毫秒为单位 -->
-		<property name="maxWait" value="10000" />
-		<property name="testWhileIdle" value="true" />
-		<!-- 线程回收器每隔3600000ms(1h)检查连接池中的空闲连接 -->
-		<property name="timeBetweenEvictionRunsMillis" value="3600000" />
-		<!-- 接上，空闲的连接在18000000ms(5h)时间内可以不被回收，超过就被移除 -->
-		<property name="minEvictableIdleTimeMillis" value="18000000" />
-		<!--从数据库连接池中取得连接时，对其的有效性进行检查 -->
-		<property name="testOnBorrow" value="true" />
-
-	</bean>
-	<!-- /JDBC data source which uses oracle -->
-
-	<bean id="debugProc" class="com.itwheel.edigate.processor.DebugProc" />
 	<bean id="prepSqlParamInitBatchProc" class="com.itwheel.edigate.processor.PrepSqlParamInitBatchProc" />
 	<bean id="prepSqlParamRetailProc" class="com.itwheel.edigate.processor.PrepSqlParamRetailProc" />
 	<bean id="prepSqlParamCloseBatchProc" class="com.itwheel.edigate.processor.PrepSqlParamCloseBatchProc" />
@@ -82,16 +16,14 @@
 	<bean id="initSlsrptMsgListProc" class="com.itwheel.edigate.processor.InitSlsrptMsgListProc" />
 	<bean id="produceSlsrptMsgProc" class="com.itwheel.edigate.processor.ProduceSlsrptMsgProc" />
 	<bean id="assemblySlsrptProc" class="com.itwheel.edigate.processor.AssemblySlsrptProc" />
-	<bean id="parsePricatProc" class="com.itwheel.edigate.processor.ParsePricatProc" />
 	
-	
-	<camelContext id="edigate" xmlns="http://camel.apache.org/schema/spring">
+	<camelContext id="slsrptctx" xmlns="http://camel.apache.org/schema/spring">
 		<!-- use Camel property placeholder loaded from the given file -->
 		<camel:propertyPlaceholder id="sql"
 			location="classpath:sql.properties" />
 
 		<camel:route id="slsrpt">
-			<camel:from uri="quartz://slsrptTimer?cron=*+*+0+*+*+?" />
+			<camel:from uri="quartz://slsrptTimer?cron=0/10+*+*+*+*+?" />
 			<camel:log message="slsrpt quartz trigger a event"></camel:log>
 
 			<camel:to uri="sql:{{sql.lastbatch}}?dataSourceRef=edi_ds" />
@@ -153,15 +85,6 @@
 			
 		</camel:route>
 		
-		<camel:route id="pricat">
-<!-- 			<camel:from uri="sftp:///edi?password="></camel:from>  -->
-			<camel:from uri="file://F:\edioutput\pricat"></camel:from>
-			<camel:log message="pricat quartz trigger a event"></camel:log>
-			<camel:log message="${body}"></camel:log>
-			
-			<camel:bean ref="parsePricatProc"></camel:bean>	
-			<camel:bean ref="debugProc"></camel:bean>	
-		</camel:route>
 	</camelContext>
 	
 	
