@@ -15,6 +15,7 @@
 	<bean id="initInvrptMsgListProc" class="com.itwheel.edigate.invrpt.processor.InitInvrptMsgListProc" />
 	<bean id="produceInvrptMsgProc" class="com.itwheel.edigate.invrpt.processor.ProduceInvrptMsgProc" />
 	<bean id="assemblyInvrptProc" class="com.itwheel.edigate.invrpt.processor.AssemblyInvrptProc" />
+	<bean id="prepSqlParamInvrptRetailItmesProc" class="com.itwheel.edigate.invrpt.processor.PrepSqlParamInvrptRetailItmesProc" />
 	
 	
 	<camelContext id="invrptctx" xmlns="http://camel.apache.org/schema/spring">
@@ -58,9 +59,7 @@
 						<camel:setHeader headerName="invrpt_retail">
 							<camel:simple>${body}</camel:simple>
 						</camel:setHeader>
-						<camel:transform>
-							<camel:simple>${body[id]}</camel:simple>
-						</camel:transform>
+						<camel:bean ref="prepSqlParamInvrptRetailItmesProc"></camel:bean>
 						<camel:to uri="sql:{{sql.invrpt.retailitem}}?dataSourceRef=pos_ds" />
 						<camel:bean ref="produceInvrptMsgProc"></camel:bean>
 					</camel:split>
