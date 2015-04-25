@@ -10,7 +10,7 @@
 		destroy-method="close">
 		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
 		<property name="url"
-			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
+			value="jdbc:oracle:thin:@localhost:1521/orcl" />
 		<property name="username" value="NEANDS3" />
 		<property name="password" value="edi_123" />
 		<!--maxActive: 最大连接数量 -->
@@ -42,7 +42,7 @@
 		destroy-method="close">
 		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
 		<property name="url"
-			value="jdbc:oracle:thin:@localhost:1521/orcl.aspire.aspire-tech.com" />
+			value="jdbc:oracle:thin:@localhost:1521/orcl" />
 		<property name="username" value="edigate" />
 		<property name="password" value="edi_123" />
 		<!--maxActive: 最大连接数量 -->
@@ -71,8 +71,11 @@
 
 	</bean>
 
+	<bean id="springLocator" class="com.itwheel.edigate.utils.SpringLocator" />
+	
 	<bean id="debugProc" class="com.itwheel.edigate.processor.DebugProc" />
 	
-	<import resource="classpath:camel-config-slsrpt.xml" />
-	<import resource="classpath:camel-config-invrpt.xml" />
+	<!-- <import resource="classpath:camel-config-slsrpt.xml" /> -->
+	<!-- <import resource="classpath:camel-config-invrpt.xml" /> -->
+	<import resource="classpath:camel-config-pricat.xml" />
 </beans>

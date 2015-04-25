@@ -7,16 +7,16 @@
         http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
         http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.4.0.xsd">
 
-	<bean id="parsePricatProc" class="com.itwheel.edigate.processor.ParsePricatProc" />
+	<bean id="parsePricatProc" class="com.itwheel.edigate.pricat.processor.ParsePricatProc" />
+	
 	<camelContext id="pricatctx" xmlns="http://camel.apache.org/schema/spring">
-		
 		<camel:route id="pricat">
 <!-- 			<camel:from uri="sftp:///edi?password="></camel:from>  -->
-			<camel:from uri="file://F:\edioutput\pricat"></camel:from>
+			<camel:from uri="file://D:\ERP\edioutput\pricat"></camel:from>
 			<camel:log message="pricat quartz trigger a event"></camel:log>
 			<camel:log message="${body}"></camel:log>
 			
-			<camel:bean ref="parsePricatProc"></camel:bean>	
+			<camel:bean ref="parsePricatProc"></camel:bean>
 			<camel:bean ref="debugProc"></camel:bean>	
 		</camel:route>
 	</camelContext>
