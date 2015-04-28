@@ -32,8 +32,14 @@ public class ParsePricatProc implements Processor {
 		DataSource ds = (DataSource)SpringLocator.getBean("edi_ds");
 		Connection conn = ds.getConnection();
 		
-		EdiPricatDao dao = new EdiPricatDao();
-		dao.handler(conn, head);
+		try {
+			conn.setAutoCommit(false);
+			EdiPricatDao dao = new EdiPricatDao();
+			dao.handler(conn, head);
+			conn.commit();
+		} catch (Exception e) {
+			conn.rollback();
+		}
 		conn.close();
 		
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
