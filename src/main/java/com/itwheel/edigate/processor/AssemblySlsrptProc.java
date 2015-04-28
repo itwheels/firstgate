@@ -33,16 +33,16 @@ public class AssemblySlsrptProc implements Processor {
 		interchange.setInterchangeDelimiters(interchangeDelimiters);
 		UNB41 interchangeHeader = new UNB41();
 		Party p = new Party();
-		p.setId("130012");
-		p.setCodeQualifier("14");
+		p.setId("BURGEON");
+		p.setCodeQualifier("ZZZ");
 		interchangeHeader.setSender(p);
 		Party recipient = new Party();
-		recipient.setId("5790000260676");
+		recipient.setId("5790000833139");
 		recipient.setCodeQualifier("14");
 		interchangeHeader.setRecipient(recipient);
 		
 		Date ts = (Date)exchange.getIn().getHeader("start_dte");
-		String dateStr = DateFormatUtils.format(ts, "yyyyMMdd");
+		String dateStr = DateFormatUtils.format(ts, "yyMMdd");
 		String timeStr = DateFormatUtils.format(ts, "hhmm");
 		DateTime dt = new DateTime();
 		dt.setDate(dateStr);
@@ -58,16 +58,15 @@ public class AssemblySlsrptProc implements Processor {
 		
 		List<UNEdifactMessage41> messages = 
 				(List<UNEdifactMessage41>)exchange.getIn().getHeader("messages");
-		int messageSegCont = 0;
+		int messageCont = messages.size();
 		for(UNEdifactMessage41 msg : messages) {
 			msg.setInterchangeHeader(interchangeHeader);
-			messageSegCont += msg.getMessageTrailer().getSegmentCount();
 		}
 		interchange.setMessages(messages);
 		
 		UNZ41 interchangeTrailer = new UNZ41();
 		interchangeTrailer.setControlRef(interchangeId.toString());
-		interchangeTrailer.setControlCount(messageSegCont+3);
+		interchangeTrailer.setControlCount(messageCont);
 		interchange.setInterchangeTrailer(interchangeTrailer);
 		
 		StringWriter ediOutStream = new StringWriter();

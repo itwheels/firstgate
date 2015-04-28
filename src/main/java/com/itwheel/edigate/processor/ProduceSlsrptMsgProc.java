@@ -43,6 +43,7 @@ import org.milyn.smooks.edi.unedifact.model.r41.types.MessageIdentifier;
 import org.milyn.smooks.edi.unedifact.model.r41.types.Party;
 import org.milyn.smooks.edi.unedifact.model.r41.types.SyntaxIdentifier;
 
+import com.itwheel.edigate.unedifact.d96a.ext.LINLineItemExt;
 import com.itwheel.edigate.utils.EdiObjectFactory;
 
 
@@ -117,9 +118,11 @@ public class ProduceSlsrptMsgProc implements Processor {
 			BigDecimal priceAct = (BigDecimal)item.get("priceactual");
 			BigDecimal qty = (BigDecimal)item.get("qty");
 			
-			LINLineItem lINLineItem = new LINLineItem();
+			LINLineItemExt lINLineItem = new LINLineItemExt();
 			BigDecimal lineNum = new BigDecimal(i+1);
 			lineNum.setScale(0);
+			System.out.println("linenum plainstr"+lineNum.toPlainString());
+			System.out.println("linenum str"+lineNum.toString());
 			lINLineItem.setE1082LineItemNumber(lineNum);
 			lINLineItem.setC212ItemNumberIdentification(EdiObjectFactory.createItemNum(itemNum));
 			
