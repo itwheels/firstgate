@@ -233,15 +233,18 @@ public class ParseEdi {
                     			 String e7081 = imd.getE7081ItemCharacteristicCoded();
                     			 C273ItemDescription c2731 = imd.getC273ItemDescription();
                     			 String e7009 = c2731.getE7009ItemDescriptionIdentification();
+                    			 String e1131 = c2731.getE1131CodeListQualifier();
                     			 String e3055 = c2731.getE3055CodeListResponsibleAgencyCoded();
                     			 String e70081 = c2731.getE70081ItemDescription();
+                    			 String e70082 = c2731.getE70082ItemDescription();
                     			 
-                    			 itemDesc.setItem_id(e7140);
-                    			 itemDesc.setItem_desc_code(e7077);
-                    			 itemDesc.setItem_desc_format(e7081);
-                    			 itemDesc.setItem_desc_ide_code(e70081);
-                    			 itemDesc.setItem_desc_ide_codelist(e3055);
-                    			 itemDesc.setItem_desc(e7009);
+                    			 itemDesc.setFORMAT(e7077);
+                    			 itemDesc.setTYPE(e7081);
+                    			 itemDesc.setDesc_id(e7009);
+                    			 itemDesc.setCodelist_qualifier(e1131);
+                    			 itemDesc.setCodelist_agency(e3055);
+                    			 itemDesc.setDesctxt1(e70081);
+                    			 itemDesc.setDesctxt2(e70082);
                     			 
                     			 itemDescList.add(itemDesc);
                     		 }

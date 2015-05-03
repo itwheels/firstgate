@@ -72,11 +72,12 @@ public class EdiPricatDao {
 		
 		String lineItemSql = "insert into EDI_PRICAT_ITEM (EDI_HEAD_ID, LINE_ITEM_NUM, ACTION_CODE, ITEM_ID, ITEM_ID_CODE, PRODUCT_IDE, ADDITIONAL_IDE, PRODUCT_IDE_NUM, ADDITIONAL_IDE_NUM, PRODUCT_IDE_CODE, ADDITIONAL_IDE_CODE, PRODUCT_IDE_CODE_LIST, ADDITIONAL_IDE_CODE_LIST, ORDER_CODE, DELIVER_CODE, ORDER_DATE, DELIVER_DATE, ORDER_DATE_FORMAT, DELIVER_DATE_FORMAT, TEXT_SUB_CODE, TEXT_FUNC_CODE, TEXT_LITE_CONTENT, AAA_VALUE, AAE_VALUE, AAB_VALUE, AAA_VALUE_TYPE, AAE_VALUE_TYPE, AAB_VALUE_TYPE, AAA_VALUE_CODE, AAE_VALUE_CODE, AAB_VALUE_CODE, ID, TEXT_LITE_PIC) " +
 				" values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-		String lineItemDescSql = "insert into EDI_PRICAT_ITEM_DESC (ID, ITEM_ID, ITEM_DESC_FORMAT, ITEM_DESC_CODE, ITEM_DESC_IDE_CODE, ITEM_DESC_IDE_CODELIST, ITEM_DESC) " +
-				" values (SEQ_EDI_PRICAT_ITEM_DESC_ID.NEXTVAL, ?, ?, ?, ?, ?, ?)";
+		String lineItemDescSql = "insert into EDI_PRICAT_ITEM_DESC (ID, ITEM_ID, FORMAT, TYPE, desc_id, codelist_qualifier, codelist_agency,desctxt1,desctxt2) " +
+				" values (SEQ_EDI_PRICAT_ITEM_DESC_ID.NEXTVAL, ?, ?, ?, ?, ?, ?, ?, ?)";
 		ps = conn.prepareStatement(lineItemSql);
 		PreparedStatement psId = conn.prepareStatement(lineItemDescSql);
 		for(EdiPricatItemBean item : head.getItemList()) {
+			int itemId = getItemId(conn);
 			ps.setInt(1, headId);
 			ps.setString(2, item.getLine_item_num());
 			ps.setString(3, item.getAction_code());
@@ -108,16 +109,18 @@ public class EdiPricatDao {
 			ps.setString(29, item.getAaa_value_code());
 			ps.setString(30, item.getAae_value_code());
 			ps.setString(31, item.getAab_value_code());
-			ps.setInt(32, getItemId(conn));
+			ps.setInt(32, itemId);
 			ps.setString(33, item.getText_lite_pic());
 			
 			for(EdiPricatItemDescBean id : item.getItemDescList()) {
-				psId.setString(1, id.getItem_id());
-				psId.setString(2, id.getItem_desc_format());
-				psId.setString(3, id.getItem_desc_code());
-				psId.setString(4, id.getItem_desc_ide_code());
-				psId.setString(5, id.getItem_desc_ide_codelist());
-				psId.setString(6, id.getItem_desc());
+				psId.setInt(1, itemId);
+				psId.setString(2, id.getFORMAT());
+				psId.setString(3, id.getTYPE());
+				psId.setString(4, id.getDesc_id());
+				psId.setString(5, id.getCodelist_qualifier());
+				psId.setString(6, id.getCodelist_agency());
+				psId.setString(7, id.getDesctxt1());
+				psId.setString(8, id.getDesctxt2());
 				
 				psId.addBatch();
 			}
