@@ -10,21 +10,19 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.milyn.edi.unedifact.d96a.INVRPT.Invrpt;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup2;
-import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup4;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup5;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup9;
 import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup11;
-import org.milyn.edi.unedifact.d96a.INVRPT.SegmentGroup13;
 import org.milyn.edi.unedifact.d96a.common.BGMBeginningOfMessage;
 import org.milyn.edi.unedifact.d96a.common.DTMDateTimePeriod;
-import org.milyn.edi.unedifact.d96a.common.LINLineItem;
 import org.milyn.edi.unedifact.d96a.common.LOCPlaceLocationIdentification;
 import org.milyn.edi.unedifact.d96a.common.PRIPriceDetails;
-import org.milyn.edi.unedifact.d96a.common.RFFReference;
 import org.milyn.smooks.edi.unedifact.model.r41.UNEdifactMessage41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNH41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNT41;
 
+import com.itwheel.edigate.unedifact.d96a.ext.LINLineItemExt;
+import com.itwheel.edigate.utils.Constant;
 import com.itwheel.edigate.utils.EdiObjectFactory;
 import com.itwheel.edigate.utils.InvrptEdiObjectFactory;
 
@@ -97,8 +95,9 @@ public class ProduceInvrptMsgProc implements Processor {
 			//BigDecimal pricewholesale = (BigDecimal)item.get("pricewholesale"); // 批发价
 			BigDecimal qty = (BigDecimal)item.get("qty");
 			
-			LINLineItem lINLineItem = new LINLineItem();
-			BigDecimal lineNum = new BigDecimal(i+1);
+			//LINLineItem lINLineItem = new LINLineItem();
+			LINLineItemExt lINLineItem = new LINLineItemExt();
+			BigDecimal lineNum = new BigDecimal(++Constant.INVRPT_LIN);
 			lineNum.setScale(0);
 			lINLineItem.setE1082LineItemNumber(lineNum);
 			lINLineItem.setC212ItemNumberIdentification(InvrptEdiObjectFactory.createItemNum(itemNum));

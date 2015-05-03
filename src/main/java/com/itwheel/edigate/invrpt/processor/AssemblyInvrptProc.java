@@ -32,8 +32,8 @@ public class AssemblyInvrptProc implements Processor {
 		interchange.setInterchangeDelimiters(interchangeDelimiters);
 		UNB41 interchangeHeader = new UNB41();
 		Party p = new Party();
-		p.setId("130012");
-		p.setCodeQualifier("14");
+		p.setId("BURGEON");
+		p.setCodeQualifier("ZZZ");
 		interchangeHeader.setSender(p);
 		Party recipient = new Party();
 		recipient.setId("5790000260676");
@@ -41,7 +41,7 @@ public class AssemblyInvrptProc implements Processor {
 		interchangeHeader.setRecipient(recipient);
 		
 		Date ts = (Date)exchange.getIn().getHeader("invrpt_start_dte");
-		String dateStr = DateFormatUtils.format(ts, "yyyyMMdd");
+		String dateStr = DateFormatUtils.format(ts, "yyMMdd");
 		String timeStr = DateFormatUtils.format(ts, "hhmm");
 		DateTime dt = new DateTime();
 		dt.setDate(dateStr);

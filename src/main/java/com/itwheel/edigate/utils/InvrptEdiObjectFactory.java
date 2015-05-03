@@ -109,7 +109,7 @@ public class InvrptEdiObjectFactory {
 		nadCo.setE3035PartyQualifier("CO");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification("8800");
-		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
+		partyDetail.setE3055CodeListResponsibleAgencyCoded("86");
 		nadCo.setC082PartyIdentificationDetails(partyDetail);
 		sg2NadCo.setNADNameAndAddress(nadCo);
 		
@@ -121,7 +121,7 @@ public class InvrptEdiObjectFactory {
 		nadSu.setE3035PartyQualifier("SU");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification("0909");
-		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
+		partyDetail.setE3055CodeListResponsibleAgencyCoded("86");
 		nadSu.setC082PartyIdentificationDetails(partyDetail);
 		sg1NadSu.setNADNameAndAddress(nadSu);
 		return sg1NadSu;
@@ -132,7 +132,7 @@ public class InvrptEdiObjectFactory {
 		nadSn.setE3035PartyQualifier("GY");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
 		partyDetail.setE3039PartyIdIdentification(snCod);
-		partyDetail.setE3055CodeListResponsibleAgencyCoded("9");
+		partyDetail.setE3055CodeListResponsibleAgencyCoded("86");
 		nadSn.setC082PartyIdentificationDetails(partyDetail);
 		sg2NadSn.setNADNameAndAddress(nadSn);
 		

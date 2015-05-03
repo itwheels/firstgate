@@ -35,11 +35,11 @@ public class InitInvrptProc implements Processor {
 		interchange.setInterchangeDelimiters(interchangeDelimiters);
 		UNB41 interchangeHeader = new UNB41();
 		Party p = new Party();
-		p.setId("130012");
-		p.setCodeQualifier("14");
+		p.setId("BURGEON");
+		p.setCodeQualifier("ZZZ");
 		interchangeHeader.setSender(p);
 		Party recipient = new Party();
-		recipient.setId("12345");
+		recipient.setId("5790000833139");
 		recipient.setCodeQualifier("14");
 		interchangeHeader.setRecipient(recipient);
 		DateTime dt = new DateTime();
