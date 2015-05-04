@@ -44,7 +44,7 @@
 			<camel:to uri="sql:{{sql.init_batch}}?dataSourceRef=edi_ds" />
 			
 			<camel:bean ref="prepSqlParamInvrptRetailProc"></camel:bean>
-			<camel:to uri="sql:{{sql.invrpt.retail}}?dataSourceRef=pos_ds" />
+			<camel:to uri="sql:{{sql.invrpt.retail}}?dataSourceRef=edi_ds" />
 			<camel:setHeader headerName="invrpt_retail_cont">
 				<camel:simple>${header.CamelSqlRowCount}</camel:simple>
 			</camel:setHeader>
@@ -60,7 +60,7 @@
 							<camel:simple>${body}</camel:simple>
 						</camel:setHeader>
 						<camel:bean ref="prepSqlParamInvrptRetailItmesProc"></camel:bean>
-						<camel:to uri="sql:{{sql.invrpt.retailitem}}?dataSourceRef=pos_ds" />
+						<camel:to uri="sql:{{sql.invrpt.retailitem}}?dataSourceRef=edi_ds" />
 						<camel:bean ref="produceInvrptMsgProc"></camel:bean>
 					</camel:split>
 					<camel:to uri="sql:{{sql.get_interchangeid}}?dataSourceRef=edi_ds" />
