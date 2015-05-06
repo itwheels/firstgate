@@ -90,3 +90,31 @@ CREATE TABLE "EDIGATE"."EDI_PRICAT_ITEM_DESC"
 CREATE SEQUENCE  "EDIGATE"."SEQ_EDI_PRICAT_HEAD_ID"  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 21 CACHE 20 NOORDER  NOCYCLE ;
 CREATE SEQUENCE  "EDIGATE"."SEQ_EDI_PRICAT_ITEM_ID"  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 21 CACHE 20 NOORDER  NOCYCLE ;
 CREATE SEQUENCE  "EDIGATE"."SEQ_EDI_PRICAT_ITEM_DESC_ID"  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 321 CACHE 20 NOORDER  NOCYCLE ;
+
+
+
+-- Create table
+create table EDI_OUTLIMIT
+(
+  id            NUMBER(10) not null,
+  type          VARCHAR2(20),
+  customer_code VARCHAR2(80),
+  store_code    VARCHAR2(80)
+)
+tablespace USERS
+  pctfree 10
+  initrans 1
+  maxtrans 255;
+-- Add comments to the columns 
+comment on column EDI_OUTLIMIT.type
+  is '类型：slsrpt/invrpt';
+comment on column EDI_OUTLIMIT.customer_code
+  is '经销商';
+comment on column EDI_OUTLIMIT.store_code
+  is '店仓';
+  
+insert into edi_outlimit (ID, TYPE, CUSTOMER_CODE, STORE_CODE)
+values (1, 'slsrpt', '99999', 'all');
+
+insert into edi_outlimit (ID, TYPE, CUSTOMER_CODE, STORE_CODE)
+values (2, 'invrpt', '99999', 'all');

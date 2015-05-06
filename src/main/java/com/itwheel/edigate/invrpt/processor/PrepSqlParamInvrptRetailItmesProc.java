@@ -22,8 +22,8 @@ public class PrepSqlParamInvrptRetailItmesProc implements Processor {
 		Map<String, Object> retail = (Map<String, Object>)exchange.getIn().getHeader("invrpt_retail");
 		
 		List params = new ArrayList();
-		params.add(lastStartDte);
-		params.add(startDte);
+		//params.add(lastStartDte);
+		//params.add(startDte);
 		params.add((BigDecimal)retail.get("id"));
 		
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());

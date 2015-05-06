@@ -91,7 +91,7 @@ public class ProduceInvrptMsgProc implements Processor {
 			
 			Map<String, Object> item = retailItems.get(i);
 			String itemNum = item.get("no").toString();
-			BigDecimal pricelist = (BigDecimal)item.get("pricelist");// 标准价
+			BigDecimal pricelist = (item.get("pricelist") == null || "".equals(item.get("pricelist"))? new BigDecimal(0) : (BigDecimal)item.get("pricelist"));// 标准价
 			//BigDecimal pricewholesale = (BigDecimal)item.get("pricewholesale"); // 批发价
 			BigDecimal qty = (BigDecimal)item.get("qty");
 			
