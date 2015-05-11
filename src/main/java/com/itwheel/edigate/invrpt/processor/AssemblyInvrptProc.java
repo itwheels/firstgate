@@ -57,16 +57,15 @@ public class AssemblyInvrptProc implements Processor {
 		
 		List<UNEdifactMessage41> messages = 
 				(List<UNEdifactMessage41>)exchange.getIn().getHeader("invrpt_messages");
-		int messageSegCont = 0;
+		int messageSegCont = messages.size();
 		for(UNEdifactMessage41 msg : messages) {
 			msg.setInterchangeHeader(interchangeHeader);
-			messageSegCont += msg.getMessageTrailer().getSegmentCount();
 		}
 		interchange.setMessages(messages);
 		
 		UNZ41 interchangeTrailer = new UNZ41();
 		interchangeTrailer.setControlRef(interchangeId.toString());
-		interchangeTrailer.setControlCount(messageSegCont+3);
+		interchangeTrailer.setControlCount(messageSegCont);
 		interchange.setInterchangeTrailer(interchangeTrailer);
 		
 		StringWriter ediOutStream = new StringWriter();

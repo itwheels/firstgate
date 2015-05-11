@@ -70,10 +70,7 @@
 					<camel:bean ref="assemblyInvrptProc"></camel:bean>
 					
 					<camel:to uri="file:D:\ERP\edioutput\invrpt\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=invrpt_${date:header.invrpt_start_dte:yyyyMMddhhmmss}.edi"></camel:to>
-					<camel:log message="invrpt edi text: ${body}"></camel:log>
 					
-					
-					<camel:bean ref="debugProc"></camel:bean>
 				</camel:when>
 				<camel:otherwise>
 					<camel:log message="no retail to process"></camel:log>

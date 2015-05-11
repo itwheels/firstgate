@@ -1,19 +1,13 @@
 package com.itwheel.edigate.processor;
 
-import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.milyn.edi.unedifact.d96a.D96AInterchangeFactory;
 import org.milyn.edi.unedifact.d96a.SLSRPT.SegmentGroup1;
 import org.milyn.edi.unedifact.d96a.SLSRPT.SegmentGroup4;
 import org.milyn.edi.unedifact.d96a.SLSRPT.SegmentGroup5;
@@ -22,26 +16,12 @@ import org.milyn.edi.unedifact.d96a.SLSRPT.SegmentGroup8;
 import org.milyn.edi.unedifact.d96a.SLSRPT.Slsrpt;
 import org.milyn.edi.unedifact.d96a.common.BGMBeginningOfMessage;
 import org.milyn.edi.unedifact.d96a.common.DTMDateTimePeriod;
-import org.milyn.edi.unedifact.d96a.common.LINLineItem;
 import org.milyn.edi.unedifact.d96a.common.LOCPlaceLocationIdentification;
 import org.milyn.edi.unedifact.d96a.common.PRIPriceDetails;
 import org.milyn.edi.unedifact.d96a.common.RFFReference;
-import org.milyn.edi.unedifact.d96a.common.field.C507DateTimePeriod;
-import org.milyn.edisax.model.internal.Delimiters;
-import org.milyn.edisax.unedifact.UNEdifactInterchangeParser;
-import org.milyn.payload.JavaSource;
-import org.milyn.payload.JavaSourceWithoutEventStream;
-import org.milyn.smooks.edi.unedifact.model.UNEdifactInterchange;
-import org.milyn.smooks.edi.unedifact.model.r41.UNB41;
-import org.milyn.smooks.edi.unedifact.model.r41.UNEdifactInterchange41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNEdifactMessage41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNH41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNT41;
-import org.milyn.smooks.edi.unedifact.model.r41.UNZ41;
-import org.milyn.smooks.edi.unedifact.model.r41.types.DateTime;
-import org.milyn.smooks.edi.unedifact.model.r41.types.MessageIdentifier;
-import org.milyn.smooks.edi.unedifact.model.r41.types.Party;
-import org.milyn.smooks.edi.unedifact.model.r41.types.SyntaxIdentifier;
 
 import com.itwheel.edigate.unedifact.d96a.ext.LINLineItemExt;
 import com.itwheel.edigate.utils.EdiObjectFactory;
@@ -121,8 +101,6 @@ public class ProduceSlsrptMsgProc implements Processor {
 			LINLineItemExt lINLineItem = new LINLineItemExt();
 			BigDecimal lineNum = new BigDecimal(i+1);
 			lineNum.setScale(0);
-			System.out.println("linenum plainstr"+lineNum.toPlainString());
-			System.out.println("linenum str"+lineNum.toString());
 			lINLineItem.setE1082LineItemNumber(lineNum);
 			lINLineItem.setC212ItemNumberIdentification(EdiObjectFactory.createItemNum(itemNum));
 			
