@@ -52,7 +52,8 @@ comment on column EDI_OUTLIMIT.CUSTOMER_CODE
 comment on column EDI_OUTLIMIT.STORE_CODE
   is '店仓';
 
-  
+alter table EDI_OUTLIMIT
+  add constraint pk_outlimit_id primary key (ID);  
 -- 创建价格列表头信息表
 create table EDI_PRICAT_HEAD
 (
@@ -335,6 +336,14 @@ alter table AD_USER
 CREATE SEQUENCE  SEQ_BATCH_ID  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 100 CACHE 20 NOORDER  NOCYCLE ;
 
 CREATE SEQUENCE  SEQ_INTERCHANGE_ID  MINVALUE 1 MAXVALUE 9999999999 INCREMENT BY 1 START WITH 1 CACHE 20 NOORDER  NOCYCLE ;
+
+-- Create sequence 
+create sequence SEQ_EDI_OUTLIMIT_ID
+minvalue 1
+maxvalue 9999999999
+start with 1
+increment by 1
+cache 20;
 
 -- Create sequence 
 create sequence AD_SEQ_USER

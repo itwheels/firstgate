@@ -120,7 +120,7 @@ public class ProduceInvrptMsgProc implements Processor {
 		message.setSegmentGroup9(segmentGroup9);
 		
 		msg.setMessage(message);
-		int segmentCount = 12 + retailItems.size()*5;
+		int segmentCount = 10 + retailItems.size()*4;
 		UNT41 messageTrailer = EdiObjectFactory.createSlsrptUnt(segmentCount, retailIdStr);
 		msg.setMessageTrailer(messageTrailer);
 		
