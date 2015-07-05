@@ -19,31 +19,42 @@ import com.itwheel.edigate.utils.SpringLocator;
 
 public class ParsePricatProc implements Processor {
 	
+	private DataSource ediDs = null;
+	public void setEdiDs(DataSource ediDs) {
+		this.ediDs = ediDs;
+	}
+	
 	public void process(Exchange exchange) throws Exception {
 		
-		D96AInterchangeFactory d96aFactory = D96AInterchangeFactory.getInstance();
 		GenericFile<File> fileObj = (GenericFile<File>)exchange.getIn().getBody();
-		InputStream pricatis = new FileInputStream(fileObj.getFile());
-		UNEdifactInterchange interchange = d96aFactory.fromUNEdifact(pricatis);
-		
-		ParseEdi edi = new ParseEdi();
-		EdiPricatHeadBean head = edi.parse(interchange);
-		
-		DataSource ds = (DataSource)SpringLocator.getBean("edi_ds");
-		Connection conn = ds.getConnection();
-		
-		try {
-			conn.setAutoCommit(false);
-			EdiPricatDao dao = new EdiPricatDao();
-			dao.handler(conn, head);
-			conn.commit();
-		} catch (Exception e) {
-			conn.rollback();
+		if(fileObj != null) {
+			System.out.println(fileObj.getFileName());
+			D96AInterchangeFactory d96aFactory = D96AInterchangeFactory.getInstance();
+			InputStream pricatis = new FileInputStream((File)fileObj.getBody());
+			
+			UNEdifactInterchange interchange = d96aFactory.fromUNEdifact(pricatis);
+			
+			ParseEdi edi = new ParseEdi();
+			EdiPricatHeadBean head = edi.parse(interchange);
+			
+//			DataSource ds = (DataSource)SpringLocator.getBean("edi_ds");
+			Connection conn = this.ediDs.getConnection();
+			
+			try {
+				conn.setAutoCommit(false);
+				EdiPricatDao dao = new EdiPricatDao();
+				dao.handler(conn, head);
+				conn.commit();
+			} catch (Exception e) {
+				conn.rollback();
+			} finally {
+				conn.close();
+			}
+			exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+			exchange.getOut().setBody(interchange);
 		}
-		conn.close();
 		
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
-		exchange.getOut().setBody(interchange);
 	}
+	
 
 }
