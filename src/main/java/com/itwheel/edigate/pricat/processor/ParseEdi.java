@@ -134,7 +134,8 @@ public class ParseEdi {
                 			 String e3039 = c082.getE3039PartyIdIdentification(); // 0001028193
                 			 head.setParty_ide_num_by(e3039);
                 			 String e3055 = c082.getE3055CodeListResponsibleAgencyCoded(); // 91
-                			 head.setParty_ide_num_by(e3055);
+//                			 head.setParty_ide_num_by(e3055);
+                			 
                 			 String e3207 = nad.getE3207CountryCoded(); // CN
                 			 head.setCountry_code_by(e3207);
                 			 String e3251 = nad.getE3251PostcodeIdentification();
@@ -175,6 +176,7 @@ public class ParseEdi {
                 	 // sg16
                 	 List<SegmentGroup16> sg16List = pricat.getSegmentGroup16();
                 	 
+                	 List<EdiPricatItemBean> itemList = new ArrayList<EdiPricatItemBean>();
                      for(SegmentGroup16 sg : sg16List) {
                     	 PGIProductGroupInformation  pgi = sg.getPGIProductGroupInformation();
                     	 String e5347 = pgi.getE5379ProductGroupTypeCoded();
@@ -186,7 +188,6 @@ public class ParseEdi {
                     	 head.setProduct_group_des(e5388);
                     	 
                     	 // 存放行数据
-                    	 List<EdiPricatItemBean> itemList = new ArrayList<EdiPricatItemBean>();
                     	 EdiPricatItemBean lineItem = null;
                     	 
                     	 // sg33 LIN

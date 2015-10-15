@@ -81,6 +81,17 @@ public class InvrptEdiObjectFactory {
 		msgDteObj.setC507DateTimePeriod(c507DateTimePeriod);
 		return msgDteObj;
 	}
+	public static DTMDateTimePeriod getRptDte(Date rptDte) {
+		C507DateTimePeriod c507DateTimePeriod = new C507DateTimePeriod();
+		c507DateTimePeriod.setE2005DateTimePeriodQualifier("366");
+		c507DateTimePeriod.setE2379DateTimePeriodFormatQualifier("102");
+		String rptDteStr = 
+				DateFormatUtils.format(rptDte, "yyyyMMdd");
+		c507DateTimePeriod.setE2380DateTimePeriod(rptDteStr);
+		DTMDateTimePeriod rptDteObj = new DTMDateTimePeriod();
+		rptDteObj.setC507DateTimePeriod(c507DateTimePeriod);
+		return rptDteObj;
+	}
 	public static DTMDateTimePeriod getRptStartDte(Date startDte) {
 		C507DateTimePeriod c507DateTimePeriod = new C507DateTimePeriod();
 		c507DateTimePeriod.setE2005DateTimePeriodQualifier("90");

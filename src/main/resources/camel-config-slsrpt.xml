@@ -42,7 +42,19 @@
 			<camel:bean ref="prepSqlParamInitBatchProc"></camel:bean>
 			<camel:to uri="sql:{{sql.init_batch}}?dataSourceRef=edi_ds" />
 			
+			
 			<camel:bean ref="prepSqlParamRetailProc"></camel:bean>
+			<camel:to uri="sql:{{sql.slsrpt.retailcount}}?dataSourceRef=edi_ds" />
+			<camel:setHeader headerName="retail_cont">
+				<camel:simple>${body[0].[retailcount]}</camel:simple>
+			</camel:setHeader>
+			<camel:setHeader headerName="retailpage_cont">
+				<camel:simple>${body[0].[pagecount]}</camel:simple>
+			</camel:setHeader>
+			<camel:log message="retail row count =${header.retail_cont}"></camel:log>
+			<camel:log message="retail page count =${header.retailpage_cont}"></camel:log>
+			
+			<camel:bean ref="debugProc"></camel:bean>
 			<camel:to uri="sql:{{sql.slsrpt.retail}}?dataSourceRef=edi_ds" />
 			<camel:setHeader headerName="retail_cont">
 				<camel:simple>${header.CamelSqlRowCount}</camel:simple>

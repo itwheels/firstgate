@@ -59,11 +59,11 @@ public class ProduceInvrptMsgProc implements Processor {
 		Timestamp startDte = (Timestamp)exchange.getIn().getHeader("invrpt_start_dte");
 		
 		DTMDateTimePeriod msgDte = InvrptEdiObjectFactory.getMsgDte(startDte);
-		DTMDateTimePeriod rptStartDte = InvrptEdiObjectFactory.getRptStartDte(lastStartDte);
-		DTMDateTimePeriod rptEndDte = InvrptEdiObjectFactory.getRptEndDte(startDte);
+//		DTMDateTimePeriod rptStartDte = InvrptEdiObjectFactory.getRptStartDte(lastStartDte);
+		DTMDateTimePeriod rptDte = InvrptEdiObjectFactory.getRptDte(startDte);
 		dTMDateTimePeriod.add(msgDte);
-		dTMDateTimePeriod.add(rptStartDte);
-		dTMDateTimePeriod.add(rptEndDte);
+//		dTMDateTimePeriod.add(rptStartDte);
+		dTMDateTimePeriod.add(rptDte);
 		message.setDTMDateTimePeriod(dTMDateTimePeriod);
 		
 		// SG2
@@ -120,7 +120,7 @@ public class ProduceInvrptMsgProc implements Processor {
 		message.setSegmentGroup9(segmentGroup9);
 		
 		msg.setMessage(message);
-		int segmentCount = 10 + retailItems.size()*4;
+		int segmentCount = 9 + retailItems.size()*4;
 		UNT41 messageTrailer = EdiObjectFactory.createSlsrptUnt(segmentCount, retailIdStr);
 		msg.setMessageTrailer(messageTrailer);
 		
