@@ -11,6 +11,7 @@
 
 	<bean id="prepSqlParamInitBatchProc" class="com.itwheel.edigate.processor.PrepSqlParamInitBatchProc" />
 	<bean id="prepSqlParamRetailProc" class="com.itwheel.edigate.processor.PrepSqlParamRetailProc" />
+	<bean id="prepSqlParamRetailContProc" class="com.itwheel.edigate.processor.PrepSqlParamRetailContProc" />
 	<bean id="prepSqlParamCloseBatchProc" class="com.itwheel.edigate.processor.PrepSqlParamCloseBatchProc" />
 	<bean id="initSlsrptProc" class="com.itwheel.edigate.processor.InitSlsrptProc" />
 	<bean id="initSlsrptMsgListProc" class="com.itwheel.edigate.processor.InitSlsrptMsgListProc" />
@@ -23,7 +24,7 @@
 			location="classpath:sql.properties" />
 
 		<camel:route id="slsrpt">
-			<camel:from uri="quartz://slsrptTimer?cron=0/10+*+*+*+*+?" />
+			<camel:from uri="quartz://slsrptTimer?cron=0+19+*+*+*+?" />
 			<camel:log message="slsrpt quartz trigger a event"></camel:log>
 
 			<camel:to uri="sql:{{sql.lastbatch}}?dataSourceRef=edi_ds" />
@@ -33,6 +34,8 @@
 			<camel:setHeader headerName="start_dte">
 				<camel:simple>${body[0].[sysdate]}</camel:simple>
 			</camel:setHeader>
+			<camel:log message="last_start_dte =${header.last_start_dte}"></camel:log>
+			<camel:log message="start_dte =${header.start_dte}"></camel:log>
 			
 			<camel:to uri="sql:{{sql.get_batchid}}?dataSourceRef=edi_ds" />
 			<camel:setHeader headerName="batch_id">
@@ -42,8 +45,7 @@
 			<camel:bean ref="prepSqlParamInitBatchProc"></camel:bean>
 			<camel:to uri="sql:{{sql.init_batch}}?dataSourceRef=edi_ds" />
 			
-			
-			<camel:bean ref="prepSqlParamRetailProc"></camel:bean>
+			<camel:bean ref="prepSqlParamRetailContProc"></camel:bean>
 			<camel:to uri="sql:{{sql.slsrpt.retailcount}}?dataSourceRef=edi_ds" />
 			<camel:setHeader headerName="retail_cont">
 				<camel:simple>${body[0].[retailcount]}</camel:simple>
@@ -53,43 +55,49 @@
 			</camel:setHeader>
 			<camel:log message="retail row count =${header.retail_cont}"></camel:log>
 			<camel:log message="retail page count =${header.retailpage_cont}"></camel:log>
-			
-			<camel:bean ref="debugProc"></camel:bean>
-			<camel:to uri="sql:{{sql.slsrpt.retail}}?dataSourceRef=edi_ds" />
-			<camel:setHeader headerName="retail_cont">
-				<camel:simple>${header.CamelSqlRowCount}</camel:simple>
-			</camel:setHeader>
-			
 			<camel:choice>
-				<camel:when>
-					<camel:simple>${header.retail_cont} > 0</camel:simple>
-					<camel:log message="retail row count =${header.CamelSqlRowCount}"></camel:log>
-					<camel:bean ref="initSlsrptMsgListProc"></camel:bean>
-					<camel:split>
-						<camel:simple>${body}</camel:simple>
-						<camel:setHeader headerName="retail">
-							<camel:simple>${body}</camel:simple>
-						</camel:setHeader>
-						<camel:transform>
-							<camel:simple>${body[id]}</camel:simple>
-						</camel:transform>
-						<camel:to uri="sql:{{sql.slsrpt.retailitem}}?dataSourceRef=edi_ds" />
-						<camel:bean ref="produceSlsrptMsgProc"></camel:bean>
-					</camel:split>
-					<camel:to uri="sql:{{sql.get_interchangeid}}?dataSourceRef=edi_ds" />
-					<camel:setHeader headerName="interchange_id">
-						<camel:simple>${body[0].[interchange_id]}</camel:simple>
-					</camel:setHeader>
-					<camel:bean ref="assemblySlsrptProc"></camel:bean>
-					
-					<camel:to uri="file:F:\edioutput\slsrpt\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to>
-<!-- 					<camel:to uri="sftp://?password=&amp;autoCreate=true&amp;tempPrefix=temp&amp;fileName=edi/slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to> -->
-					
-				</camel:when>
-				<camel:otherwise>
-					<camel:log message="no retail to process"></camel:log>
-				</camel:otherwise>
-			</camel:choice>
+					<camel:when>
+						<camel:simple>${header.retail_cont} > 0</camel:simple>
+						<camel:loop>
+							<camel:header>retailpage_cont</camel:header>
+							<camel:log message="retail page count =${header.retailpage_cont}"></camel:log>
+							<camel:log message="size =${property.CamelLoopSize}"></camel:log>
+							<camel:log message="index =${property.CamelLoopIndex}"></camel:log>
+							<camel:bean ref="prepSqlParamRetailProc"></camel:bean>
+							<camel:to uri="sql:{{sql.slsrpt.retail}}?dataSourceRef=edi_ds" />
+							
+							<camel:log message="retail row count =${header.CamelSqlRowCount}"></camel:log>
+							<camel:bean ref="initSlsrptMsgListProc"></camel:bean>
+							<camel:split>
+								<camel:simple>${body}</camel:simple>
+								<camel:log message="retail body =${body}"></camel:log>
+								<camel:setHeader headerName="retail">
+									<camel:simple>${body}</camel:simple>
+								</camel:setHeader>
+								<camel:transform>
+									<camel:simple>${body[id]}</camel:simple>
+								</camel:transform>
+								<camel:to uri="sql:{{sql.slsrpt.retailitem}}?dataSourceRef=edi_ds" />
+								<camel:bean ref="produceSlsrptMsgProc"></camel:bean>
+							</camel:split>
+							<camel:to uri="sql:{{sql.get_interchangeid}}?dataSourceRef=edi_ds" />
+							<camel:setHeader headerName="interchange_id">
+								<camel:simple>${body[0].[interchange_id]}</camel:simple>
+							</camel:setHeader>
+							<camel:bean ref="assemblySlsrptProc"></camel:bean>
+							<camel:bean ref="debugProc"></camel:bean>
+							
+<!-- 							<camel:to uri="file:/Output/edi/slsrpt/?autoCreate=true&amp;tempPrefix=temp&amp;fileName=slsrpt_${date:header.start_dte:yyyyMMddhhmmss}_${property.CamelLoopIndex}.edi"></camel:to> -->
+								 <camel:to uri="file:F:\edidata\slsrpt\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=slsrpt_${date:header.start_dte:yyyyMMddhhmmss}_${property.CamelLoopIndex}.edi"></camel:to>
+							
+		<!-- 					<camel:to uri="sftp://?password=&amp;autoCreate=true&amp;tempPrefix=temp&amp;fileName=edi/slsrpt_${date:header.start_dte:yyyyMMddhhmmss}.edi"></camel:to> -->
+						</camel:loop>	
+					</camel:when>
+					<camel:otherwise>
+						<camel:log message="no retail to process"></camel:log>
+					</camel:otherwise>
+				</camel:choice>
+						
 			
 			<camel:bean ref="prepSqlParamCloseBatchProc"></camel:bean>
 			<camel:to uri="sql:{{sql.close_batch}}?dataSourceRef=edi_ds"></camel:to>

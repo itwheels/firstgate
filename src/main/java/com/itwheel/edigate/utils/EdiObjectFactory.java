@@ -1,6 +1,7 @@
 package com.itwheel.edigate.utils;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +15,7 @@ import org.milyn.edi.unedifact.d96a.common.BGMBeginningOfMessage;
 import org.milyn.edi.unedifact.d96a.common.CUXCurrencies;
 import org.milyn.edi.unedifact.d96a.common.DTMDateTimePeriod;
 import org.milyn.edi.unedifact.d96a.common.LOCPlaceLocationIdentification;
+import org.milyn.edi.unedifact.d96a.common.MOAMonetaryAmount;
 import org.milyn.edi.unedifact.d96a.common.NADNameAndAddress;
 import org.milyn.edi.unedifact.d96a.common.PRIPriceDetails;
 import org.milyn.edi.unedifact.d96a.common.QTYQuantity;
@@ -26,6 +28,7 @@ import org.milyn.edi.unedifact.d96a.common.field.C5041CurrencyDetails;
 import org.milyn.edi.unedifact.d96a.common.field.C506Reference;
 import org.milyn.edi.unedifact.d96a.common.field.C507DateTimePeriod;
 import org.milyn.edi.unedifact.d96a.common.field.C509PriceInformation;
+import org.milyn.edi.unedifact.d96a.common.field.C516MonetaryAmount;
 import org.milyn.edi.unedifact.d96a.common.field.C517LocationIdentification;
 import org.milyn.smooks.edi.unedifact.model.r41.UNH41;
 import org.milyn.smooks.edi.unedifact.model.r41.UNT41;
@@ -179,7 +182,34 @@ public class EdiObjectFactory {
 		refList.add(ref);
 		return refList;
 	}
-	public static List<PRIPriceDetails> createPrice(BigDecimal priceAct) {
+	public static List<MOAMonetaryAmount> createMoa(BigDecimal priceAct) {
+		C516MonetaryAmount c516maGross = new C516MonetaryAmount();
+		c516maGross.setE5025MonetaryAmountTypeQualifier("139");
+		c516maGross.setE5004MonetaryAmount(priceAct);
+		MOAMonetaryAmount moaGross = new MOAMonetaryAmount();
+		moaGross.setC516MonetaryAmount(c516maGross);
+		
+		BigDecimal priceNet = priceAct.divide(TAX_RATE, 2, RoundingMode.HALF_UP);
+		C516MonetaryAmount c516maNet = new C516MonetaryAmount();
+		c516maNet.setE5025MonetaryAmountTypeQualifier("128");
+		c516maNet.setE5004MonetaryAmount(priceNet);
+		MOAMonetaryAmount moaNet = new MOAMonetaryAmount();
+		moaNet.setC516MonetaryAmount(c516maNet);
+		
+		List<MOAMonetaryAmount> moaList = new ArrayList<MOAMonetaryAmount>();
+		moaList.add(moaGross);
+		moaList.add(moaNet);
+		
+		return moaList;
+	}
+	public static List<PRIPriceDetails> createPrice(BigDecimal priceAct, BigDecimal priceLst) {
+//		actual price = 1500, recommended retail price = 2000, 17% VAT
+//		PRI+AAA:1282.05::ABE
+//		PRI+AAB:1500.00::RTP
+//		PRI+AAA:1709.40::SRP
+//		PRI+AAE:2000.00::SRP
+//		PRI+AAA:427.35::DPR
+//		PRI+AAE:500.00:DPR
 		
 		PRIPriceDetails pgd = new PRIPriceDetails();
 		C509PriceInformation pgi= new C509PriceInformation();
@@ -196,9 +226,46 @@ public class EdiObjectFactory {
 		pni.setE5387PriceTypeQualifier("ABE");
 		pnd.setC509PriceInformation(pni);
 		
+		PRIPriceDetails pgdLst = new PRIPriceDetails();
+		C509PriceInformation pgiLst= new C509PriceInformation();
+		pgiLst.setE5118Price(priceLst);
+		pgiLst.setE5125PriceQualifier("AAB");
+		pgiLst.setE5387PriceTypeQualifier("SRP");
+		pgdLst.setC509PriceInformation(pgiLst);
+		
+		PRIPriceDetails pndLst = new PRIPriceDetails();
+		C509PriceInformation pniLst= new C509PriceInformation();
+		BigDecimal priceLstNet = priceLst.divide(TAX_RATE, 2, RoundingMode.HALF_UP);
+		pniLst.setE5118Price(priceLstNet);
+		pniLst.setE5125PriceQualifier("AAA");
+		pniLst.setE5387PriceTypeQualifier("SRP");
+		pndLst.setC509PriceInformation(pniLst);
+		
+		PRIPriceDetails pgdDisc = new PRIPriceDetails();
+		C509PriceInformation pgiDisc= new C509PriceInformation();
+		BigDecimal discount = priceLst.subtract(priceAct).setScale(2, RoundingMode.HALF_UP);
+		pgiDisc.setE5118Price(discount);
+		pgiDisc.setE5125PriceQualifier("AAB");
+		pgiDisc.setE5387PriceTypeQualifier("DPR");
+		pgdDisc.setC509PriceInformation(pgiDisc);
+		
+		PRIPriceDetails pndDisc = new PRIPriceDetails();
+		C509PriceInformation pniDisc= new C509PriceInformation();
+		BigDecimal discNet = discount.divide(TAX_RATE, 2, RoundingMode.HALF_UP);
+		pniDisc.setE5118Price(discNet);
+		pniDisc.setE5125PriceQualifier("AAA");
+		pniDisc.setE5387PriceTypeQualifier("DPR");
+		pndDisc.setC509PriceInformation(pniDisc);
+		
+		
 		List<PRIPriceDetails> priceList = new ArrayList<PRIPriceDetails>();
-		priceList.add(pnd);
-		priceList.add(pgd);
+//		成交价转移到MOA segment 2015-11-12
+//		priceList.add(pnd);
+//		priceList.add(pgd);
+		priceList.add(pgdLst);
+		priceList.add(pndLst);
+		priceList.add(pgdDisc);
+		priceList.add(pndDisc);
 		
 		return priceList;
 	}

@@ -17,6 +17,7 @@ import org.milyn.edi.unedifact.d96a.SLSRPT.Slsrpt;
 import org.milyn.edi.unedifact.d96a.common.BGMBeginningOfMessage;
 import org.milyn.edi.unedifact.d96a.common.DTMDateTimePeriod;
 import org.milyn.edi.unedifact.d96a.common.LOCPlaceLocationIdentification;
+import org.milyn.edi.unedifact.d96a.common.MOAMonetaryAmount;
 import org.milyn.edi.unedifact.d96a.common.PRIPriceDetails;
 import org.milyn.edi.unedifact.d96a.common.RFFReference;
 import org.milyn.smooks.edi.unedifact.model.r41.UNEdifactMessage41;
@@ -96,6 +97,9 @@ public class ProduceSlsrptMsgProc implements Processor {
 			Map<String, Object> item = retailItems.get(i);
 			String itemNum = item.get("no").toString();
 			BigDecimal priceAct = (BigDecimal)item.get("priceactual");
+			BigDecimal priceLst = (BigDecimal)item.get("pricelist");
+			BigDecimal discount = (BigDecimal)item.get("discount");
+			
 			BigDecimal qty = (BigDecimal)item.get("qty");
 			
 			LINLineItemExt lINLineItem = new LINLineItemExt();
@@ -106,15 +110,18 @@ public class ProduceSlsrptMsgProc implements Processor {
 			
 			List<RFFReference> rFFReference = EdiObjectFactory.createReference(docNo);
 			
-			List<PRIPriceDetails> pRIPriceDetails = EdiObjectFactory.createPrice(priceAct);
+			List<PRIPriceDetails> pRIPriceDetails = EdiObjectFactory.createPrice(priceAct, priceLst);
 			
 			List<SegmentGroup8> sg8List = EdiObjectFactory.createQty(qty);
+			
+			List<MOAMonetaryAmount> mOAMonetaryAmount = EdiObjectFactory.createMoa(priceAct);
 			
 			SegmentGroup7 sg7 = new SegmentGroup7();
 			sg7.setLINLineItem(lINLineItem);
 			sg7.setRFFReference(rFFReference);
 			sg7.setPRIPriceDetails(pRIPriceDetails);
 			sg7.setSegmentGroup8(sg8List);
+			sg7.setMOAMonetaryAmount(mOAMonetaryAmount);
 			
 			segmentGroup7.add(sg7);
 		}
@@ -130,7 +137,7 @@ public class ProduceSlsrptMsgProc implements Processor {
 		message.setSegmentGroup5(segmentGroup5);
 		
 		msg.setMessage(message);
-		int segmentCount = 12 + retailItems.size()*5;
+		int segmentCount = 12 + retailItems.size()*9;
 		UNT41 messageTrailer = 
 				EdiObjectFactory.createSlsrptUnt(segmentCount, retailIdStr);
 		msg.setMessageTrailer(messageTrailer);
