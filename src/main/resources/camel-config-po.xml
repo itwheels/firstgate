@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.4.0.xsd">
+
+	<!-- ASN -->
+	<bean id="initDateProcessor" class="com.itwheel.edigate.poprocessor.InitDateProcessor" />
+	<bean id="poProcessor" class="com.itwheel.edigate.poprocessor.PoProcessor" >
+		<property name="ediDs" ref="edi_ds"></property>
+	</bean>
+	
+	<camelContext id="poctx" xmlns="http://camel.apache.org/schema/spring">
+		<!-- use Camel property placeholder loaded from the given file -->
+		<camel:propertyPlaceholder id="sql" location="classpath:sql.properties" />
+		
+		<camel:dataFormats>
+			<jaxb id="poobj" encoding="UTF-8" contextPath="com.itwheel.edigate.po"/>
+    	</camel:dataFormats>
+
+		<camel:route id="po">
+			<camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" />
+			
+			<camel:log message="start"></camel:log>
+			
+			<camel:bean ref="initDateProcessor"></camel:bean>
+			<camel:to uri="sql:{{sql.po.selectpo}}?dataSourceRef=edi_ds" />
+			
+			<camel:setHeader headerName="po_count">
+				<camel:simple>${header.CamelSqlRowCount}</camel:simple>
+			</camel:setHeader>
+			
+			<camel:choice>
+				<camel:when>
+					<camel:simple>${header.po_count} > 0</camel:simple>
+					<camel:log message="po count =${header.CamelSqlRowCount}"></camel:log>
+
+					<camel:split>
+						<camel:simple>${body}</camel:simple>
+						<camel:setHeader headerName="po_detail">
+							<camel:simple>${body}</camel:simple>
+						</camel:setHeader>
+						
+						<camel:bean ref="poProcessor"></camel:bean>
+						<camel:marshal ref="poobj"></camel:marshal>
+						
+						<camel:setBody>
+							<camel:simple>$xml=${body}</camel:simple>
+						</camel:setBody>
+						<camel:setHeader headerName="CamelHttpMethod">
+							<camel:constant>POST</camel:constant>
+						</camel:setHeader>
+						<camel:setHeader headerName="CamelHttpCharacterEncoding">
+							<camel:constant>UTF-8</camel:constant>
+						</camel:setHeader>
+						<camel:setHeader headerName="Content-Type">
+							<camel:constant>application/x-www-form-urlencoded</camel:constant>
+						</camel:setHeader>
+						<camel:log message="body befor push: ${body}"></camel:log>
+						
+						<camel:to uri="file://E:\po\po" />
+					</camel:split>
+					
+				</camel:when>
+				<camel:otherwise>
+					<camel:log message="no retail to process"></camel:log>
+				</camel:otherwise>
+			</camel:choice>
+			
+			<camel:log message="end"></camel:log>
+			
+		</camel:route>
+	</camelContext>
+</beans>

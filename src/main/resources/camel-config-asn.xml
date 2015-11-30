@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:camel="http://camel.apache.org/schema/spring"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc.xsd
+        http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring-2.4.0.xsd">
+
+	<!-- ASN -->
+	<bean id="asnProcessor" class="com.itwheel.edigate.asnprocessor.AsnProcessor" />
+	
+	<camelContext id="asnctx" xmlns="http://camel.apache.org/schema/spring">
+		<!-- use Camel property placeholder loaded from the given file -->
+		<camel:propertyPlaceholder id="sql" location="classpath:sql.properties" />
+		
+		<camel:dataFormats>
+			<jaxb id="asnobj" encoding="UTF-8" contextPath="com.itwheel.edigate.asn"/>
+    	</camel:dataFormats>
+
+		<camel:route id="asn">
+			<!-- <camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" /> -->
+			<camel:from uri="file://E:\po\asn" />
+			
+			<camel:log message="start"></camel:log>
+
+			<camel:log message="${header.$xmldata}"></camel:log>
+			<camel:pipeline>
+				<camel:transform>
+					<camel:simple>${header.$xmldata}</camel:simple>
+				</camel:transform>
+				<camel:unmarshal ref="asnobj"/>
+				<camel:setHeader headerName="vou_sid">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.vou_sid}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="sbs_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.sbs_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="store_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.store_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="vou_type">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.vou_type}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="vou_class">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.vou_class}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="vend_code">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.vend_code}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="payee_code">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.payee_code}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="station">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.station}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="workstation">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.workstation}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="orig_store_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.orig_store_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="orig_station">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.orig_station}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="po_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.po_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="pkg_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.pkg_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="cost_handling_code">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.cost_handling_code}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="update_price_flag">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.update_price_flag}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="use_vat">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.use_vat}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="created_date">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.created_date}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="modified_date">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.modified_date}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="cms">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.cms}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="ws_seq_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.ws_seq_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="held">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.held}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="active">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VOUCHER.active}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="vend_invc_no">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VEND_INVOICE.vend_invc_no}</camel:simple>
+				</camel:setHeader>
+				<camel:setHeader headerName="vend_invc_date">
+					<camel:simple>${body.DOCUMENT.VOUCHERS.VEND_INVOICE.vend_invc_date}</camel:simple>
+				</camel:setHeader>
+				
+				<camel:to uri="sql:{{sql.asn.insertvoucher}}?dataSource=edi_ds"/>
+				
+				<camel:split parallelProcessing="true">
+					<camel:simple>${body.VOU_ITEMS.VOU_ITEM}</camel:simple>
+					<camel:setHeader headerName="item_pos">
+						<camel:simple>${body.item_pos}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="item_sid">
+						<camel:simple>${body.item_sid}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="qty">
+						<camel:simple>${body.qty}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="orig_qty">
+						<camel:simple>${body.orig_qty}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="price">
+						<camel:simple>${body.price}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="cost">
+						<camel:simple>${body.cost}</camel:simple>
+					</camel:setHeader>
+					<camel:setHeader headerName="upc">
+						<camel:simple>${body.INVN_BASE_ITEM.upc}</camel:simple>
+					</camel:setHeader>
+
+					<camel:to uri="sql:{{sql.asn.insertvoucheritem}}?dataSource=edi_ds"/>
+				</camel:split>
+				
+			</camel:pipeline>
+			
+			<camel:log message="end"></camel:log>
+			
+		</camel:route>
+	</camelContext>
+</beans>

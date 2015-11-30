@@ -43,7 +43,8 @@
 	
 	<bean id="debugProc" class="com.itwheel.edigate.processor.DebugProc" />
 	
- 	<import resource="classpath:camel-config-slsrpt.xml" /> 
+ 	<!-- <import resource="classpath:camel-config-slsrpt.xml" />  -->
 <!-- 	<import resource="classpath:camel-config-invrpt.xml" /> -->
 	<!-- <import resource="classpath:camel-config-pricat.xml" /> -->
+	<import resource="classpath:camel-config-po.xml" />
 </beans>
