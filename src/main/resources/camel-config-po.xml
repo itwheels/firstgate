@@ -62,6 +62,8 @@
 						<camel:log message="body befor push: ${body}"></camel:log>
 						
 						<camel:to uri="file://E:\po\po\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=PO.xml" />
+						
+						
 					</camel:split>
 					
 				</camel:when>

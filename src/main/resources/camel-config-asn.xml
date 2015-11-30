@@ -19,7 +19,7 @@
     	</camel:dataFormats>
 
 		<camel:route id="asn">
-			<!-- <camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" /> -->
+			<camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" />
 			<camel:from uri="file://E:\po\asn" />
 			
 			<camel:log message="start"></camel:log>

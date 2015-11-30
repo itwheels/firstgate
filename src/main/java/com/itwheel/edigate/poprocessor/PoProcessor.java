@@ -44,7 +44,17 @@ public class PoProcessor implements Processor{
 		
 		PO po = new PO();
 		po.setPoSid((String)_po.get("po_sid"));
-		po.setSbsNo((String)_po.get("205")); 
+		po.setSbsNo((String)_po.get("205"));
+		po.setStoreNo((String)_po.get("code"));
+		po.setPoNo((String)_po.get("po_no"));
+		po.setPoType((String)_po.get("po_type"));
+		po.setCreatedDate((String)_po.get("created_date"));
+		po.setModifiedDate((String)_po.get("modified_date"));
+		po.setShippingDate((String)_po.get("shipping_date"));
+		po.setLstActivityDate((String)_po.get("lst_activity_date"));
+		po.setSentDate((String)_po.get("lst_activity_date"));
+		po.setCmsPostDate((String)_po.get("sent_date"));
+		po.setEmplName((String)_po.get("empl_name"));
 		
 		po.setVendCode("01");
 		po.setInstruction1("ECCO");
