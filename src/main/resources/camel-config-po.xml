@@ -63,7 +63,7 @@
 						
 						<camel:to uri="file://E:\po\po\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=PO.xml" />
 						
-						
+						<camel:to uri="sql:{{sql.po.log.insert}}?dataSourceRef=edi_ds" />
 					</camel:split>
 					
 				</camel:when>

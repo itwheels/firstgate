@@ -100,7 +100,9 @@ public class PoProcessor implements Processor{
 		
 		poList.add(po);
 		
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+		Map<String, Object> map = exchange.getIn().getHeaders();
+		map.put("POSID", (String)_po.get("po_sid"));
+		exchange.getOut().setHeaders(map);
 		exchange.getOut().setBody(document);
 	}
 	

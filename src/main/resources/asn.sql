@@ -161,3 +161,25 @@ comment on column VOUCHER_ITEM.cost
 comment on column VOUCHER_ITEM.upc
   is '条码
 ';
+
+-- Create sequence 
+create sequence SEQ_LOGPO
+minvalue 1
+maxvalue 9999999
+start with 1
+increment by 1
+cache 20;
+
+-- Create table
+create table LOGPO
+(
+  id     NUMBER,
+  po_sid VARCHAR2(80)
+)
+tablespace USERS
+  pctfree 10
+  initrans 1
+  maxtrans 255;
+-- Add comments to the columns 
+comment on column LOGPO.po_sid
+  is '订单号';
