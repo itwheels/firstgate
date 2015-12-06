@@ -22,7 +22,7 @@ public class InitDateProcessor implements Processor{
 		
 		params.add(y + "/" + m + "/" +d);
 		params.add(y + "/" + m + "/" +d);
-		
+		System.out.println(params);
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 		exchange.getOut().setBody(params);
 	}

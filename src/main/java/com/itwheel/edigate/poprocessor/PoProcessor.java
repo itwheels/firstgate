@@ -1,10 +1,15 @@
 package com.itwheel.edigate.poprocessor;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,23 +43,26 @@ public class PoProcessor implements Processor{
 		Map<String, Object> _po = (Map<String, Object>)exchange.getIn().getHeader("po_detail");
 		
 		DOCUMENT document = new DOCUMENT();
-		POS pos = document.getPOS();
+//		POS pos = document.getPOS();
+		
+		POS pos = new POS();
 		
 		List<PO> poList = pos.getPO();
 		
 		PO po = new PO();
 		po.setPoSid((String)_po.get("po_sid"));
 		po.setSbsNo((String)_po.get("205"));
-		po.setStoreNo((String)_po.get("code"));
+		String code = (String)_po.get("code");
+		po.setStoreNo(code);
 		po.setPoNo((String)_po.get("po_no"));
-		po.setPoType((String)_po.get("po_type"));
-		po.setCreatedDate((String)_po.get("created_date"));
-		po.setModifiedDate((String)_po.get("modified_date"));
-		po.setShippingDate((String)_po.get("shipping_date"));
-		po.setLstActivityDate((String)_po.get("lst_activity_date"));
-		po.setSentDate((String)_po.get("lst_activity_date"));
-		po.setCmsPostDate((String)_po.get("sent_date"));
-		po.setEmplName((String)_po.get("empl_name"));
+		po.setPoType(_po.get("po_type") == null ? "" : ((BigDecimal)_po.get("po_type")).toString());
+		po.setCreatedDate(_po.get("created_date") == null ? "" : ((Timestamp)_po.get("created_date")).toString());
+		po.setModifiedDate(_po.get("modified_date") == null ? "" : ((Timestamp)_po.get("modified_date")).toString());
+		po.setShippingDate(_po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString());
+		po.setLstActivityDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
+		po.setSentDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
+		po.setCmsPostDate(_po.get("sent_date") == null ? "" : ((Timestamp)_po.get("sent_date")).toString());
+		po.setEmplName(_po.get("empl_name") == null ? "" : ((BigDecimal)_po.get("empl_name")).toString());
 		
 		po.setVendCode("01");
 		po.setInstruction1("ECCO");
@@ -93,7 +101,7 @@ public class PoProcessor implements Processor{
 		
 		Connection conn = this.ediDs.getConnection();
 		
-		List<POITEM> list = getPoItems(conn, Long.valueOf((String)_po.get("id")));
+		List<POITEM> list = getPoItems(conn, Long.valueOf(((BigDecimal)_po.get("id")).longValue()));
 		POITEMS pitems = new POITEMS();
 		pitems.getPOITEM().addAll(list);
 		po.setPOITEMS(pitems);
@@ -102,14 +110,19 @@ public class PoProcessor implements Processor{
 		
 		Map<String, Object> map = exchange.getIn().getHeaders();
 		map.put("POSID", (String)_po.get("po_sid"));
+		DateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		String dStr = sdf.format(new Date());
+		map.put("DATE", dStr);
+		map.put("CODE", code);
 		exchange.getOut().setHeaders(map);
+		document.setPOS(pos);
 		exchange.getOut().setBody(document);
 	}
 	
 	private List<POITEM> getPoItems(Connection conn, long id) {
 		String sql = "select mtf.id,mpa.no item_sid, mtf.price, mtf.precost cost, mp.name alu, mp.serialno style_sid, "
 					+ "mp.value  ,mp.fairpdttype, mp.flowno, ma.value2, mtf.m_product_id item_no, mtf.qty "
-					+ " from m_transferitem mtf, m_product_alias mpa, m_product mp,m_attributesetinstance ma "
+					+ " from NEANDS3.m_transferitem mtf, NEANDS3.m_product_alias mpa, NEANDS3.m_product mp,NEANDS3.m_attributesetinstance ma "
 					+ " where mtf.m_transfer_id =" + id + " and mtf.m_productalias_id = mpa.id and mtf.m_product_id = mp.id and mtf.m_attributesetinstance_id = ma.id";
 		
 		

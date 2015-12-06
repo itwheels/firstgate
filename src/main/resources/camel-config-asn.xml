@@ -19,10 +19,10 @@
     	</camel:dataFormats>
 
 		<camel:route id="asn">
-			<camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" />
-			<camel:from uri="file://E:\po\asn" />
+			<camel:from uri="quartz://asntTimer?cron=0/50+*+*+*+*+?" />
+			<camel:from uri="file:///E:/po/asn" />
 			
-			<camel:log message="start"></camel:log>
+			<camel:log message="====asn start"></camel:log>
 
 			<camel:log message="${header.$xmldata}"></camel:log>
 			<camel:pipeline>
@@ -103,7 +103,7 @@
 					<camel:simple>${body.DOCUMENT.VOUCHERS.VEND_INVOICE.vend_invc_date}</camel:simple>
 				</camel:setHeader>
 				
-				<camel:to uri="sql:{{sql.asn.insertvoucher}}?dataSource=edi_ds"/>
+				<camel:to uri="sql:{{sql.asn.insertvoucher}}?dataSourceRef=edi_ds"/>
 				
 				<camel:split parallelProcessing="true">
 					<camel:simple>${body.VOU_ITEMS.VOU_ITEM}</camel:simple>
@@ -129,7 +129,7 @@
 						<camel:simple>${body.INVN_BASE_ITEM.upc}</camel:simple>
 					</camel:setHeader>
 
-					<camel:to uri="sql:{{sql.asn.insertvoucheritem}}?dataSource=edi_ds"/>
+					<camel:to uri="sql:{{sql.asn.insertvoucheritem}}?dataSourceRef=edi_ds"/>
 				</camel:split>
 				
 			</camel:pipeline>
