@@ -173,13 +173,30 @@ cache 20;
 -- Create table
 create table LOGPO
 (
-  id     NUMBER,
-  po_sid VARCHAR2(80)
+  id      NUMBER not null,
+  po_sid  VARCHAR2(80),
+  logdate VARCHAR2(80)
 )
 tablespace USERS
   pctfree 10
   initrans 1
-  maxtrans 255;
+  maxtrans 255
+  storage
+  (
+    initial 64
+    next 8
+    minextents 1
+    maxextents unlimited
+  );
 -- Add comments to the columns 
 comment on column LOGPO.po_sid
   is '订单号';
+  
+grant select on m_transfer to edigate;
+grant select on c_store to edigate;
+grant select on m_transferitem to edigate;
+grant select on m_product_alias to edigate;
+grant select on m_product to edigate;
+grant select on m_attributesetinstance to edigate;
+grant select on m_product to edigate;
+grant select on m_dim to edigate;
