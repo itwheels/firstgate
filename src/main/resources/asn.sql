@@ -1,3 +1,19 @@
+-- Create sequence 
+create sequence SEQ_PK_VOUCHER_ID
+minvalue 1
+maxvalue 9999999999
+start with 1
+increment by 1
+cache 20;
+
+-- Create sequence 
+create sequence SEQ_VOUCHER_ITEM_ID
+minvalue 1
+maxvalue 9999999999
+start with 1
+increment by 1
+cache 20;
+
 -- Create table
 create table VOUCHER
 (
@@ -24,7 +40,9 @@ create table VOUCHER
   held               VARCHAR2(10),
   active             VARCHAR2(10),
   vend_invc_no       VARCHAR2(15),
-  vend_invc_date     VARCHAR2(20)
+  vend_invc_date     VARCHAR2(20),
+  id                 NUMBER(10) not null,
+  createdate         TIMESTAMP(6)
 )
 tablespace USERS
   pctfree 10
@@ -32,8 +50,8 @@ tablespace USERS
   maxtrans 255
   storage
   (
-    initial 64
-    next 1
+    initial 64K
+    next 8K
     minextents 1
     maxextents unlimited
   );
@@ -111,19 +129,39 @@ comment on column VOUCHER.vend_invc_no
 comment on column VOUCHER.vend_invc_date
   is '发票日期
 ';
-
+comment on column VOUCHER.id
+  is '主键';
+comment on column VOUCHER.createdate
+  is '生成时间';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table VOUCHER
+  add constraint PK_VOUCHER_ID primary key (ID)
+  using index 
+  tablespace USERS
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
 
 -- Create table
 create table VOUCHER_ITEM
 (
-  vou_sid  VARCHAR2(20),
-  item_pos VARCHAR2(20),
-  item_sid VARCHAR2(20),
-  qty      VARCHAR2(20),
-  orig_qty VARCHAR2(20),
-  price    VARCHAR2(20),
-  cost     VARCHAR2(20),
-  upc      VARCHAR2(20)
+  vou_sid    VARCHAR2(20),
+  item_pos   VARCHAR2(20),
+  item_sid   VARCHAR2(20),
+  qty        VARCHAR2(20),
+  orig_qty   VARCHAR2(20),
+  price      VARCHAR2(20),
+  cost       VARCHAR2(20),
+  upc        VARCHAR2(20),
+  id         NUMBER(10) not null,
+  createdate TIMESTAMP(6)
 )
 tablespace USERS
   pctfree 10
@@ -131,8 +169,8 @@ tablespace USERS
   maxtrans 255
   storage
   (
-    initial 64
-    next 1
+    initial 64K
+    next 8K
     minextents 1
     maxextents unlimited
   );
@@ -161,3 +199,60 @@ comment on column VOUCHER_ITEM.cost
 comment on column VOUCHER_ITEM.upc
   is '条码
 ';
+comment on column VOUCHER_ITEM.createdate
+  is '创建时间';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table VOUCHER_ITEM
+  add constraint PK_VOUCHER_ITEM_ID primary key (ID)
+  using index 
+  tablespace USERS
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+
+
+-- Create sequence 
+create sequence SEQ_LOGPO
+minvalue 1
+maxvalue 9999999
+start with 1
+increment by 1
+cache 20;
+
+-- Create table
+create table LOGPO
+(
+  id      NUMBER not null,
+  po_sid  VARCHAR2(80),
+  logdate VARCHAR2(80)
+)
+tablespace USERS
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64
+    next 8
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the columns 
+comment on column LOGPO.po_sid
+  is '订单号';
+  
+grant select on m_transfer to edigate;
+grant select on c_store to edigate;
+grant select on m_transferitem to edigate;
+grant select on m_product_alias to edigate;
+grant select on m_product to edigate;
+grant select on m_attributesetinstance to edigate;
+grant select on m_product to edigate;
+grant select on m_dim to edigate;

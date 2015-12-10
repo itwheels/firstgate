@@ -24,7 +24,7 @@
 		<camel:route id="po">
 			<camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" />
 			
-			<camel:log message="start"></camel:log>
+			<camel:log message="=====po start"></camel:log>
 			
 			<camel:bean ref="initDateProcessor"></camel:bean>
 			<camel:to uri="sql:{{sql.po.selectpo}}?dataSourceRef=edi_ds" />
@@ -61,7 +61,8 @@
 						</camel:setHeader>
 						<camel:log message="body befor push: ${body}"></camel:log>
 						
-						<camel:to uri="file://E:\po\po\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=PO.xml" />
+						<camel:to uri="file://E:\po\po\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=PO${header.DATE}_${header.CODE}_${header.NUM}.xml" />
+						
 					</camel:split>
 					
 				</camel:when>

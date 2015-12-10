@@ -1,10 +1,15 @@
 package com.itwheel.edigate.poprocessor;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -38,13 +43,31 @@ public class PoProcessor implements Processor{
 		Map<String, Object> _po = (Map<String, Object>)exchange.getIn().getHeader("po_detail");
 		
 		DOCUMENT document = new DOCUMENT();
-		POS pos = document.getPOS();
+
+		Connection conn = this.ediDs.getConnection();
+		String destCode = code(conn, _po.get("c_dest_id") == null ? "" : ((BigDecimal)_po.get("c_dest_id")).toString());
+		
+		POS pos = new POS();
 		
 		List<PO> poList = pos.getPO();
 		
 		PO po = new PO();
 		po.setPoSid((String)_po.get("po_sid"));
-		po.setSbsNo((String)_po.get("205")); 
+		po.setSbsNo((String)_po.get("205"));
+		String code = (String)_po.get("code");
+		po.setStoreNo(code);
+		po.setShiptoStoreNo(destCode);
+		po.setBilltoStoreNo(destCode);
+		po.setMarkedforStoreNo(destCode);
+		po.setPoNo((String)_po.get("po_no"));
+		po.setPoType(_po.get("po_type") == null ? "" : ((BigDecimal)_po.get("po_type")).toString());
+		po.setCreatedDate(_po.get("created_date") == null ? "" : ((Timestamp)_po.get("created_date")).toString());
+		po.setModifiedDate(_po.get("modified_date") == null ? "" : ((Timestamp)_po.get("modified_date")).toString());
+		po.setShippingDate(_po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString());
+		po.setLstActivityDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
+		po.setSentDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
+		po.setCmsPostDate(_po.get("sent_date") == null ? "" : ((Timestamp)_po.get("sent_date")).toString());
+		po.setEmplName(_po.get("empl_name") == null ? "" : ((BigDecimal)_po.get("empl_name")).toString());
 		
 		po.setVendCode("01");
 		po.setInstruction1("ECCO");
@@ -81,24 +104,33 @@ public class PoProcessor implements Processor{
 		lpoterm.add(poterm);
 		po.setPOTERMS(poterms);
 		
-		Connection conn = this.ediDs.getConnection();
-		
-		List<POITEM> list = getPoItems(conn, Long.valueOf((String)_po.get("id")));
+		List<POITEM> list = getPoItems(conn, Long.valueOf(((BigDecimal)_po.get("id")).longValue()), code);
 		POITEMS pitems = new POITEMS();
 		pitems.getPOITEM().addAll(list);
 		po.setPOITEMS(pitems);
 		
 		poList.add(po);
 		
-		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
+		record(conn, (String)_po.get("po_sid"));
+		
+		Map<String, Object> map = exchange.getIn().getHeaders();
+		DateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+		String dStr = sdf.format(new Date());
+		map.put("DATE", dStr);
+		map.put("CODE", code);
+		map.put("NUM", ((BigDecimal)_po.get("n")).toString());
+		exchange.getOut().setHeaders(map);
+		document.setPOS(pos);
 		exchange.getOut().setBody(document);
 	}
 	
-	private List<POITEM> getPoItems(Connection conn, long id) {
+	private List<POITEM> getPoItems(Connection conn, long id, String code) {
 		String sql = "select mtf.id,mpa.no item_sid, mtf.price, mtf.precost cost, mp.name alu, mp.serialno style_sid, "
 					+ "mp.value  ,mp.fairpdttype, mp.flowno, ma.value2, mtf.m_product_id item_no, mtf.qty "
-					+ " from m_transferitem mtf, m_product_alias mpa, m_product mp,m_attributesetinstance ma "
-					+ " where mtf.m_transfer_id =" + id + " and mtf.m_productalias_id = mpa.id and mtf.m_product_id = mp.id and mtf.m_attributesetinstance_id = ma.id";
+					+ " from NEANDS3.m_transferitem mtf, NEANDS3.m_product_alias mpa, NEANDS3.m_product mp,"
+					+ "NEANDS3.m_attributesetinstance ma "
+					+ " where mtf.m_transfer_id =" + id + " and mtf.m_productalias_id = mpa.id "
+							+ "and mtf.m_product_id = mp.id and mtf.m_attributesetinstance_id = ma.id";
 		
 		
 		try {
@@ -127,8 +159,8 @@ public class PoProcessor implements Processor{
 				in.setVendCode("01");
 				in.setDescription1(rs.getString("style_sid"));
 				in.setDescription2("1");
-				in.setDescription3(rs.getString("value"));
-				in.setDescription4(rs.getString("fairpdttype"));
+				in.setDescription3(null != rs.getString("value") && rs.getString("value").split("-").length > 1 ? rs.getString("value").split("-")[1] : rs.getString("value"));
+				in.setDescription4(null != rs.getString("fairpdttype") &&rs.getString("fairpdttype").split("-").length > 1 ? rs.getString("fairpdttype").split("-")[1] : rs.getString("fairpdttype"));
 				in.setAttr(rs.getString("flowno"));
 				in.setSiz(rs.getString("value2"));
 				in.setUseQtyDecimals("0");
@@ -136,10 +168,14 @@ public class PoProcessor implements Processor{
 				in.setFlag("0");
 				in.setExtFlag("0");
 				in.setItemNo(rs.getString("item_no"));
+				
+				getM(conn, rs.getString("item_no"), in);
+				
 				item.setINVNBASEITEM(in);
 				
 				POQTYS poqtys = new POQTYS();
 				POQTY poqty = new POQTY();
+				poqty.setStoreNo(code);
 				poqty.setOrdQty(rs.getString("qty"));
 				poqty.setRcvdQty("0");
 				List<POQTY> lp = poqtys.getPOQTY();
@@ -153,6 +189,109 @@ public class PoProcessor implements Processor{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	
+	private void getM(Connection conn, String itemno, INVNBASEITEM in) {
+		String sql1 = "select value aux3_value from NEANDS3.m_product mp where mp.id=" +itemno;
+		String sql2 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id=" + itemno + " and mp.m_dim5_id=md.id "; 
+		String sql3 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim4_id=md.id";
+		String sql4 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim6_id=md.id";
+		String sql5 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim7_id=md.id";
+		String sql6 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim9_id=md.id";
+		String sql7 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim2_id=md.id";
+		String sql8 = "select md.attribname aux3_value from NEANDS3.m_product mp, NEANDS3.m_dim md where mp.id =" + itemno + " and mp.m_dim3_id=md.id";
+				
+		try {
+			Statement state = conn.createStatement();
+			ResultSet rs = state.executeQuery(sql1);
+			String s = "";
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux1Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql2);
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux2Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql3);
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux3Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql4);
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux4Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql5);
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux5Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql6);
+			if(rs.next()) {
+				s = rs.getString(1);
+				in.setAux5Value(s.split("-").length > 1 ? s.split("-")[1] : s);
+			}
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql7);
+			if(rs.next()) {
+				s = rs.getString(1);
+			}
+			else s = "";
+			
+			state = conn.createStatement();
+			rs = state.executeQuery(sql8);
+			if(rs.next()) {
+				s += "_" + rs.getString(1).replace("Q", "");
+			}
+			
+			in.setAux7Value(s);
+			
+			state.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void record(Connection conn, String id) {
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		String dStr = sdf.format(new Date());
+		String sql = "insert into LOGPO values(SEQ_LOGPO.Nextval,'" + id + "', '" + dStr + "')";
+		try {
+			Statement state = conn.createStatement();
+			state.execute(sql);
+			state.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private String code(Connection conn, String id) {
+		String sql = "select code from NEANDS3.c_store c where c.id=" + id;
+		try {
+			Statement state = conn.createStatement();
+			ResultSet rs = state.executeQuery(sql);
+			if(rs.next()) {
+				return rs.getString(1);
+			}
+			state.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "";
 	}
 
 }
