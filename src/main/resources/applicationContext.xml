@@ -47,5 +47,5 @@
 <!-- 	<import resource="classpath:camel-config-invrpt.xml" /> -->
 	<!-- <import resource="classpath:camel-config-pricat.xml" /> -->
 	<!-- <import resource="classpath:camel-config-po.xml" /> -->
-	<import resource="classpath:camel-config-asn.xml" />
+	<import resource="classpath:camel-config-po.xml" />
 </beans>

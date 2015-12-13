@@ -12,6 +12,8 @@
 	<bean id="poProcessor" class="com.itwheel.edigate.poprocessor.PoProcessor" >
 		<property name="ediDs" ref="edi_ds"></property>
 	</bean>
+	<bean id="poPrepSqlParamInitBatchProc" class="com.itwheel.edigate.poprocessor.PrepSqlParamInitBatchProc" />
+	<bean id="poPrepSqlParamCloseBatchProc" class="com.itwheel.edigate.poprocessor.PrepSqlParamCloseBatchProc" />
 	
 	<camelContext id="poctx" xmlns="http://camel.apache.org/schema/spring">
 		<!-- use Camel property placeholder loaded from the given file -->
@@ -22,9 +24,29 @@
     	</camel:dataFormats>
 
 		<camel:route id="po">
-			<camel:from uri="quartz://invrptTimer?cron=0/50+*+*+*+*+?" />
+			<camel:from uri="quartz://poTimer?cron=0/50+*+*+*+*+?" />
 			
 			<camel:log message="=====po start"></camel:log>
+			
+			<camel:to uri="sql:{{sql.po.lastbatch}}?dataSourceRef=edi_ds" />
+			<camel:setHeader headerName="last_start_dte">
+				<camel:simple>${body[0].[start_dte]}</camel:simple>
+			</camel:setHeader>
+			<camel:setHeader headerName="start_dte">
+				<camel:simple>${body[0].[sysdate]}</camel:simple>
+			</camel:setHeader>
+			
+			<camel:log message="last_start_dte =${header.last_start_dte}"></camel:log>
+			<camel:log message="start_dte =${header.start_dte}"></camel:log>
+			
+			<camel:to uri="sql:{{sql.get_batchid}}?dataSourceRef=edi_ds" />
+			<camel:setHeader headerName="batch_id">
+				<camel:simple>${body[0].[batch_id]}</camel:simple>
+			</camel:setHeader>
+			
+			<camel:bean ref="poPrepSqlParamInitBatchProc"></camel:bean>
+			<camel:to uri="sql:{{sql.init_batch}}?dataSourceRef=edi_ds" />
+			
 			
 			<camel:bean ref="initDateProcessor"></camel:bean>
 			<camel:to uri="sql:{{sql.po.selectpo}}?dataSourceRef=edi_ds" />
@@ -71,6 +93,8 @@
 				</camel:otherwise>
 			</camel:choice>
 			
+			<camel:bean ref="poPrepSqlParamCloseBatchProc"></camel:bean>
+			<camel:to uri="sql:{{sql.close_batch}}?dataSourceRef=edi_ds"></camel:to>
 			<camel:log message="end"></camel:log>
 			
 		</camel:route>
