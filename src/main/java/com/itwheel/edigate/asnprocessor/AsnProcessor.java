@@ -80,6 +80,8 @@ public class AsnProcessor implements Processor{
 		}
 		ps.close();
 		
+		conn.close();
+		
 		exchange.getOut().setHeaders(exchange.getIn().getHeaders());
 	}
 	
