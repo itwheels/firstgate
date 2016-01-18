@@ -70,7 +70,7 @@
 						<camel:marshal ref="poobj"></camel:marshal>
 						
 						<camel:setBody>
-							<camel:simple>$xml=${body}</camel:simple>
+							<camel:simple>${body}</camel:simple>
 						</camel:setBody>
 						<camel:setHeader headerName="CamelHttpMethod">
 							<camel:constant>POST</camel:constant>

@@ -63,7 +63,14 @@ public class PoProcessor implements Processor{
 		po.setPoType(_po.get("po_type") == null ? "" : ((BigDecimal)_po.get("po_type")).toString());
 		po.setCreatedDate(_po.get("created_date") == null ? "" : ((Timestamp)_po.get("created_date")).toString());
 		po.setModifiedDate(_po.get("modified_date") == null ? "" : ((Timestamp)_po.get("modified_date")).toString());
-		po.setShippingDate(_po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString());
+		
+		String shippingDate = _po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString();
+		
+		if(shippingDate != "") {
+			shippingDate = shippingDate.substring(0, 4) + "-" +  shippingDate.substring(4, 6) + "-" + shippingDate.substring(6, 8);
+		}
+		
+		po.setShippingDate(shippingDate);
 		po.setLstActivityDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
 		po.setSentDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
 		po.setCmsPostDate(_po.get("sent_date") == null ? "" : ((Timestamp)_po.get("sent_date")).toString());
