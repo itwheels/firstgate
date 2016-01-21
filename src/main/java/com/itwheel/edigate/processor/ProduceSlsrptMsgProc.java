@@ -47,6 +47,7 @@ public class ProduceSlsrptMsgProc implements Processor {
 		String retailIdStr = retail.get("id").toString(); 
 		String docNo = retail.get("docno").toString();
 		String storeCod = retail.get("code").toString();
+		String custCod = retail.get("ccode").toString();
 		String billDte = retail.get("billdate").toString();
 		UNH41 messageHeader = 
 				EdiObjectFactory.createSlsrptUnh(retailIdStr);
@@ -72,7 +73,7 @@ public class ProduceSlsrptMsgProc implements Processor {
 		message.setDTMDateTimePeriod(dTMDateTimePeriod);
 		
 		List<SegmentGroup1> segmentGroup1 = new ArrayList<SegmentGroup1>();
-		SegmentGroup1 sgNadCo = EdiObjectFactory.createSgNadCo();
+		SegmentGroup1 sgNadCo = EdiObjectFactory.createSgNadCo(custCod);
 		SegmentGroup1 sgNadSu = EdiObjectFactory.createSgNadSu();
 		SegmentGroup1 sgNadSn = EdiObjectFactory.createSgNadSn(storeCod);
 		

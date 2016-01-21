@@ -63,7 +63,14 @@ public class PoProcessor implements Processor{
 		po.setPoType(_po.get("po_type") == null ? "" : ((BigDecimal)_po.get("po_type")).toString());
 		po.setCreatedDate(_po.get("created_date") == null ? "" : ((Timestamp)_po.get("created_date")).toString());
 		po.setModifiedDate(_po.get("modified_date") == null ? "" : ((Timestamp)_po.get("modified_date")).toString());
-		po.setShippingDate(_po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString());
+		
+		String shippingDate = _po.get("shipping_date") == null ? "" : ((BigDecimal)_po.get("shipping_date")).toString();
+		
+		if(shippingDate != "") {
+			shippingDate = shippingDate.substring(0, 4) + "-" +  shippingDate.substring(4, 6) + "-" + shippingDate.substring(6, 8);
+		}
+		
+		po.setShippingDate(shippingDate);
 		po.setLstActivityDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
 		po.setSentDate(_po.get("lst_activity_date") == null ? "" : ((Timestamp)_po.get("lst_activity_date")).toString());
 		po.setCmsPostDate(_po.get("sent_date") == null ? "" : ((Timestamp)_po.get("sent_date")).toString());
@@ -112,6 +119,8 @@ public class PoProcessor implements Processor{
 		poList.add(po);
 		
 		record(conn, (String)_po.get("po_sid"));
+		
+		conn.close();
 		
 		Map<String, Object> map = exchange.getIn().getHeaders();
 		DateFormat sdf = new SimpleDateFormat("yyyyMMdd");
@@ -183,7 +192,8 @@ public class PoProcessor implements Processor{
 				item.setPOQTYS(poqtys);
 				list.add(item);
 			}
-			
+			rs.close();
+			state.close();
 			return list;
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -210,12 +220,18 @@ public class PoProcessor implements Processor{
 				in.setAux1Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
 			
+			rs.close();
+			state.close();
+			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql2);
 			if(rs.next()) {
 				s = rs.getString(1);
 				in.setAux2Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
+			
+			rs.close();
+			state.close();
 			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql3);
@@ -224,12 +240,18 @@ public class PoProcessor implements Processor{
 				in.setAux3Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
 			
+			rs.close();
+			state.close();
+			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql4);
 			if(rs.next()) {
 				s = rs.getString(1);
 				in.setAux4Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
+			
+			rs.close();
+			state.close();
 			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql5);
@@ -238,6 +260,9 @@ public class PoProcessor implements Processor{
 				in.setAux5Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
 			
+			rs.close();
+			state.close();
+			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql6);
 			if(rs.next()) {
@@ -245,12 +270,18 @@ public class PoProcessor implements Processor{
 				in.setAux5Value(s.split("-").length > 1 ? s.split("-")[1] : s);
 			}
 			
+			rs.close();
+			state.close();
+			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql7);
 			if(rs.next()) {
 				s = rs.getString(1);
 			}
 			else s = "";
+			
+			rs.close();
+			state.close();
 			
 			state = conn.createStatement();
 			rs = state.executeQuery(sql8);
@@ -260,6 +291,7 @@ public class PoProcessor implements Processor{
 			
 			in.setAux7Value(s);
 			
+			rs.close();
 			state.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -284,14 +316,16 @@ public class PoProcessor implements Processor{
 		try {
 			Statement state = conn.createStatement();
 			ResultSet rs = state.executeQuery(sql);
+			String s = "";
 			if(rs.next()) {
-				return rs.getString(1);
+				s =  rs.getString(1);
 			}
+			rs.close();
 			state.close();
+			return s;
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return "";
 	}
-
 }

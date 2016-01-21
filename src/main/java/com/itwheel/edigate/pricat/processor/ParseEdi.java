@@ -151,7 +151,7 @@ public class ParseEdi {
                 			 String e3039 = c082.getE3039PartyIdIdentification(); // 0001028193
                 			 head.setParty_ide_num_su(e3039);
                 			 String e3055 = c082.getE3055CodeListResponsibleAgencyCoded(); // 91
-                			 head.setParty_ide_num_su(e3055);
+//                			 head.setParty_ide_num_su(e3055);
                 			 String e3207 = nad.getE3207CountryCoded(); // CN
                 			 head.setCountry_code_su(e3207);
                 			 String e3251 = nad.getE3251PostcodeIdentification();

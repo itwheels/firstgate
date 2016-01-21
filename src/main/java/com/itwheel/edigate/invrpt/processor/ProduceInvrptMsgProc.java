@@ -41,6 +41,7 @@ public class ProduceInvrptMsgProc implements Processor {
 		
 		String retailIdStr = retail.get("id").toString(); 
 		String storeCod = retail.get("code").toString();
+		String custCod = retail.get("ccode").toString();
 		
 		// UNH
 		UNH41 messageHeader =  InvrptEdiObjectFactory.createInvrptUnh(retailIdStr);
@@ -70,7 +71,7 @@ public class ProduceInvrptMsgProc implements Processor {
 		List<SegmentGroup2> segmentGroup2 = new ArrayList<SegmentGroup2>();
 		SegmentGroup2 sgNadSu = InvrptEdiObjectFactory.createSgNadSu();
 		SegmentGroup2 sgNadGy = InvrptEdiObjectFactory.createSgNadGy(storeCod);
-		SegmentGroup2 sgNadCo = InvrptEdiObjectFactory.createSgNadCo();
+		SegmentGroup2 sgNadCo = InvrptEdiObjectFactory.createSgNadCo(custCod);
 		
 		segmentGroup2.add(sgNadSu);
 		segmentGroup2.add(sgNadGy);

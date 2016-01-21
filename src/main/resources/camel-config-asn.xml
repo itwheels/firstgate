@@ -21,8 +21,8 @@
     	</camel:dataFormats>
 
 		<camel:route id="asn">
-			<camel:from uri="quartz://asntTimer?cron=0/50+*+*+*+*+?" />
-			<camel:from uri="file://E:\po\asn" />
+<!-- 			<camel:from uri="quartz://asntTimer?cron=0/50+*+*+*+*+?" /> -->
+			<camel:from uri="file://F:\edidata\asn" />
 			
 			<camel:log message="====asn start"></camel:log>
 			

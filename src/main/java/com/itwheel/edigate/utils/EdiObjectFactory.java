@@ -101,12 +101,12 @@ public class EdiObjectFactory {
 		endDteObj.setC507DateTimePeriod(c507DateTimePeriod);
 		return endDteObj;
 	}
-	public static SegmentGroup1 createSgNadCo() {
+	public static SegmentGroup1 createSgNadCo(String custCod) {
 		SegmentGroup1 sg1NadCo = new SegmentGroup1();
 		NADNameAndAddress nadCo = new NADNameAndAddress();
 		nadCo.setE3035PartyQualifier("CO");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
-		partyDetail.setE3039PartyIdIdentification("I8800");
+		partyDetail.setE3039PartyIdIdentification(custCod);
 		partyDetail.setE3055CodeListResponsibleAgencyCoded("86");
 		nadCo.setC082PartyIdentificationDetails(partyDetail);
 		sg1NadCo.setNADNameAndAddress(nadCo);

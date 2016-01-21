@@ -114,12 +114,12 @@ public class InvrptEdiObjectFactory {
 		endDteObj.setC507DateTimePeriod(c507DateTimePeriod);
 		return endDteObj;
 	}
-	public static SegmentGroup2 createSgNadCo() {
+	public static SegmentGroup2 createSgNadCo(String custCod) {
 		SegmentGroup2 sg2NadCo = new SegmentGroup2();
 		NADNameAndAddress nadCo = new NADNameAndAddress();
 		nadCo.setE3035PartyQualifier("CO");
 		C082PartyIdentificationDetails partyDetail = new C082PartyIdentificationDetails();
-		partyDetail.setE3039PartyIdIdentification("8800");
+		partyDetail.setE3039PartyIdIdentification(custCod);
 		partyDetail.setE3055CodeListResponsibleAgencyCoded("86");
 		nadCo.setC082PartyIdentificationDetails(partyDetail);
 		sg2NadCo.setNADNameAndAddress(nadCo);

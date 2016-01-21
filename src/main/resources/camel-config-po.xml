@@ -24,7 +24,7 @@
     	</camel:dataFormats>
 
 		<camel:route id="po">
-			<camel:from uri="quartz://poTimer?cron=0/50+*+*+*+*+?" />
+			<camel:from uri="quartz://poTimer?cron=0+41+10/1+*+*+?" />
 			
 			<camel:log message="=====po start"></camel:log>
 			
@@ -70,7 +70,7 @@
 						<camel:marshal ref="poobj"></camel:marshal>
 						
 						<camel:setBody>
-							<camel:simple>$xml=${body}</camel:simple>
+							<camel:simple>${body}</camel:simple>
 						</camel:setBody>
 						<camel:setHeader headerName="CamelHttpMethod">
 							<camel:constant>POST</camel:constant>
@@ -83,7 +83,8 @@
 						</camel:setHeader>
 						<camel:log message="body befor push: ${body}"></camel:log>
 						
-						<camel:to uri="file://E:\po\po\?autoCreate=true&amp;tempPrefix=temp&amp;fileName=PO${header.DATE}_${header.CODE}_${header.NUM}.xml" />
+<!-- 						<camel:to uri="file://F:\edidata\po\?autoCreate=true&amp;tempPrefix=temp_&amp;fileName=PO${header.DATE}_${header.CODE}_${header.NUM}.xml" /> -->
+						<camel:to uri="file:///Output/edi/po/?autoCreate=true&amp;tempPrefix=temp_&amp;fileName=PO${header.DATE}_${header.CODE}_${header.NUM}.xml" />
 						
 					</camel:split>
 					
@@ -96,7 +97,7 @@
 			<camel:bean ref="poPrepSqlParamCloseBatchProc"></camel:bean>
 			<camel:to uri="sql:{{sql.close_batch}}?dataSourceRef=edi_ds"></camel:to>
 			<camel:log message="end"></camel:log>
-			
+<!-- 			<camel:bean ref="debugProc"></camel:bean> -->
 		</camel:route>
 	</camelContext>
 </beans>
